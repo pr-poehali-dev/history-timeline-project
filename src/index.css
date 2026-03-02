@@ -4,89 +4,42 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --parchment: #f5e6c8;
+    --parchment-dark: #e8d5a3;
+    --ink: #2c1a0e;
+    --ink-light: #4a3320;
+    --sepia: #8b4513;
+    --sepia-light: rgba(139, 90, 43, 0.3);
+    --axis: #6b3a1f;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 36 45% 96%;
+    --foreground: 20 60% 12%;
+    --card: 36 45% 96%;
+    --card-foreground: 20 60% 12%;
+    --popover: 36 45% 96%;
+    --popover-foreground: 20 60% 12%;
+    --primary: 20 70% 30%;
+    --primary-foreground: 36 45% 96%;
+    --secondary: 36 30% 88%;
+    --secondary-foreground: 20 60% 20%;
+    --muted: 36 20% 85%;
+    --muted-foreground: 20 30% 40%;
+    --accent: 36 40% 80%;
+    --accent-foreground: 20 60% 12%;
+    --destructive: 0 75% 40%;
+    --destructive-foreground: 36 45% 96%;
+    --border: 36 30% 75%;
+    --input: 36 30% 75%;
+    --ring: 20 70% 30%;
+    --radius: 2px;
+    --sidebar-background: 36 30% 92%;
+    --sidebar-foreground: 20 60% 20%;
+    --sidebar-primary: 20 70% 30%;
+    --sidebar-primary-foreground: 36 45% 96%;
+    --sidebar-accent: 36 30% 85%;
+    --sidebar-accent-foreground: 20 60% 20%;
+    --sidebar-border: 36 20% 80%;
+    --sidebar-ring: 20 70% 40%;
   }
 }
 
@@ -94,8 +47,226 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* === HISTORY PAGE STYLES === */
+
+.history-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #f0e0c0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  font-family: "Cormorant Garamond", serif;
+}
+
+.history-header {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 18px 20px 14px;
+  background: linear-gradient(180deg, #2c1a0e 0%, #3d2410 100%);
+  border-bottom: 3px solid #8b4513;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 100;
+}
+
+.header-ornament {
+  color: #c9a227;
+  font-size: 16px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.history-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 700;
+  color: #f5e6c8;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.history-subtitle {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(11px, 1.5vw, 14px);
+  color: #c9a227;
+  letter-spacing: 0.2em;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.era-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.era-pill {
+  font-family: "Oswald", sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.era-pill:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.legend-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.category-dot {
+  font-family: "Oswald", sans-serif;
+  font-size: 9px;
+  color: rgba(245, 230, 200, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+/* === SCROLLABLE TIMELINE === */
+
+.timeline-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.timeline-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.timeline-scroll::-webkit-scrollbar-track {
+  background: #2c1a0e;
+}
+.timeline-scroll::-webkit-scrollbar-thumb {
+  background: #8b4513;
+  border-radius: 2px;
+}
+
+.timeline-container {
+  position: relative;
+  width: 100%;
+  min-width: 600px;
+}
+
+/* CENTER AXIS */
+.timeline-axis {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    #c9a227 0%,
+    #8b4513 5%,
+    #6b3a1f 50%,
+    #3d2410 95%,
+    #1a0f06 100%
+  );
+  z-index: 3;
+  box-shadow: 0 0 12px rgba(139, 90, 43, 0.4);
+}
+
+/* === RULER BADGE === */
+.ruler-badge {
+  padding: 4px 8px;
+  border-radius: 2px;
+  cursor: default;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* === EVENT CARD === */
+.parchment-card {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 230, 200, 0.97) 0%,
+    rgba(235, 215, 175, 0.97) 100%
+  );
+  padding: 6px 10px;
+  border-radius: 2px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.parchment-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.parchment-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 245, 215, 0.99) 0%,
+    rgba(245, 225, 185, 0.99) 100%
+  );
+  transform: translateY(-1px);
+}
+
+/* === TOOLTIP === */
+.parchment-tooltip {
+  background: linear-gradient(135deg, #f5e6c8 0%, #e8d5a3 100%);
+  border: 1px solid rgba(139, 90, 43, 0.4);
+  border-radius: 2px;
+  padding: 12px 14px;
+  box-shadow:
+    4px 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 90, 43, 0.1);
+}
+
+/* === FOOTER === */
+.history-footer {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 8px 16px;
+  background: linear-gradient(0deg, #2c1a0e 0%, #3d2410 100%);
+  border-top: 2px solid #8b4513;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(245, 230, 200, 0.6);
+  font-size: 12px;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }
