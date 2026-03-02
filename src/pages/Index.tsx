@@ -142,7 +142,7 @@ export default function Index() {
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
-        <div style={{ padding: "16px 24px 60px 24px" }}>
+        <div style={{ padding: "16px 24px 60px 24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
           {sortedEvents.map((event, i) => {
             const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
