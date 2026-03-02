@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  events, eras,
+  events, eras, rulers,
   type HistoryEvent
 } from "@/data/historyData";
 
@@ -24,12 +24,17 @@ const personColors: Record<string, string> = {
 const sortedEvents = [...events].sort((a, b) => a.year - b.year);
 const EVENT_ROW_H = 80;
 
+function getRulerAtYear(year: number) {
+  return rulers.find(r => year >= r.yearStart && year <= r.yearEnd);
+}
+
 // ─── EventCard ────────────────────────────────────────────────
 function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string }) {
   const [open, setOpen] = useState(false);
   const color = categoryColors[event.category];
   const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
   const eraColor = era?.color || "#8B4513";
+  const ruler = getRulerAtYear(event.year);
 
   return (
     <button
@@ -64,6 +69,17 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
           <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px", whiteSpace: "normal", maxWidth: "600px" }}>
             {event.description}
           </p>
+        )}
+        {ruler && (
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", paddingTop: "5px", borderTop: "1px solid rgba(139,90,43,0.15)" }}>
+            <span style={{ fontSize: "14px", opacity: 0.6 }}>👑</span>
+            <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "16px", color: eraColor, fontStyle: "italic" }}>
+              {ruler.name}
+            </span>
+            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "12px", color: `${eraColor}80`, letterSpacing: "0.04em" }}>
+              · {ruler.title}
+            </span>
+          </div>
         )}
       </div>
     </button>
