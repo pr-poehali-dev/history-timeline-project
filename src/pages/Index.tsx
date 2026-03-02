@@ -1,13 +1,36 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { rulers, events, eras, type Ruler, type HistoryEvent } from "@/data/historyData";
 
 const YEAR_HEIGHT = 14;
 const START_YEAR = 2026;
 const END_YEAR = 862;
 const TOTAL_YEARS = START_YEAR - END_YEAR;
+const CARD_HEIGHT = 56; // минимальная высота карточки в px
+const CARD_WIDTH = 260; // базовая ширина карточки
+const DEPTH_STEP = 220; // шаг отступа для каждого уровня вложенности
 
 function yearToOffset(year: number): number {
   return (START_YEAR - year) * YEAR_HEIGHT;
+}
+
+// Вычисляет depth (уровень вложенности) для каждого события на одной стороне
+// чтобы карточки не перекрывали друг друга — как дерево каталогов
+function computeDepths(sideEvents: (HistoryEvent & { index: number })[]): Map<number, number> {
+  const sorted = [...sideEvents].sort((a, b) => b.year - a.year); // сверху вниз
+  const depthMap = new Map<number, number>();
+  // columns[depth] = нижняя граница последней карточки на этом уровне
+  const columnBottom: number[] = [];
+
+  for (const ev of sorted) {
+    const top = yearToOffset(ev.year);
+    let depth = 0;
+    while (columnBottom[depth] !== undefined && top < columnBottom[depth] + 4) {
+      depth++;
+    }
+    columnBottom[depth] = top + CARD_HEIGHT;
+    depthMap.set(ev.index, depth);
+  }
+  return depthMap;
 }
 
 const categoryColors: Record<string, string> = {
@@ -28,85 +51,98 @@ const categoryLabels: Record<string, string> = {
   reform: "Реформа",
 };
 
-function EventCard({ event }: { event: HistoryEvent }) {
-  const [open, setOpen] = useState(false);
+function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
   const top = yearToOffset(event.year);
   const isLeft = event.side === "left";
   const color = categoryColors[event.category];
 
+  // Чем глубже уровень — тем дальше от оси
+  const offsetFromAxis = 24 + depth * DEPTH_STEP;
+  const cardWidth = CARD_WIDTH;
+
+  // Горизонтальный коннектор от оси к карточке
+  const connectorWidth = offsetFromAxis - 12;
+
   return (
     <div
-      className="absolute flex items-start"
+      className="absolute"
       style={{
         top: `${top}px`,
-        left: isLeft ? "calc(50% - 320px)" : "50%",
-        width: "320px",
-        paddingLeft: isLeft ? "8px" : "24px",
-        paddingRight: isLeft ? "24px" : "8px",
-        zIndex: open ? 20 : 5,
+        left: isLeft ? `calc(50% - ${offsetFromAxis + cardWidth}px)` : `calc(50% + ${offsetFromAxis}px)`,
+        width: `${cardWidth}px`,
+        zIndex: 5,
       }}
     >
-      <div className={`flex ${isLeft ? "flex-row-reverse" : "flex-row"} items-start gap-2 w-full`}>
-        <button
-          onClick={() => setOpen(!open)}
-          className="group relative cursor-pointer text-left"
-          style={{ minWidth: 0, flex: 1 }}
-        >
+      {/* Горизонтальная линия-коннектор к оси */}
+      {depth > 0 && (
+        <div
+          className="absolute"
+          style={{
+            top: "14px",
+            [isLeft ? "right" : "left"]: `${-connectorWidth}px`,
+            width: `${connectorWidth}px`,
+            height: "1px",
+            background: `${color}60`,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      <div className={`flex ${isLeft ? "flex-row-reverse" : "flex-row"} items-start gap-1.5`}>
+        <div
+          className="flex-shrink-0 w-2 h-2 rounded-full mt-3"
+          style={{
+            background: color,
+            boxShadow: `0 0 5px ${color}80`,
+            minWidth: "8px",
+          }}
+        />
+        <div className="text-left w-full">
           <div
-            className="parchment-card border transition-all duration-300 hover:shadow-2xl"
+            className="parchment-card transition-all duration-200 hover:shadow-xl"
             style={{
-              borderLeft: isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.25)`,
-              borderRight: !isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.25)`,
-              borderTop: `1px solid rgba(139,90,43,0.25)`,
-              borderBottom: `1px solid rgba(139,90,43,0.25)`,
+              borderLeft: isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.2)`,
+              borderRight: !isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.2)`,
+              borderTop: `1px solid rgba(139,90,43,0.2)`,
+              borderBottom: `1px solid rgba(139,90,43,0.2)`,
             }}
           >
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span
-                className="font-bold"
-                style={{
-                  fontFamily: "Oswald, sans-serif",
-                  color: "#8B4513",
-                  fontSize: "24px",
-                }}
-              >
-                {event.year} г.
-              </span>
-            </div>
+            <span
+              style={{
+                fontFamily: "Oswald, sans-serif",
+                color: "#8B4513",
+                fontSize: "13px",
+                display: "block",
+                lineHeight: 1.2,
+              }}
+            >
+              {event.year} г.
+            </span>
             <p
-              className="font-semibold leading-snug"
               style={{
                 fontFamily: "Cormorant Garamond, serif",
-                fontSize: "28px",
+                fontSize: "18px",
                 color: "#2C1A0E",
-                fontWeight: 600,
+                fontWeight: 700,
+                lineHeight: 1.2,
+                margin: "2px 0",
               }}
             >
               {event.title}
             </p>
-            {open && (
-              <p
-                className="mt-1 leading-relaxed"
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "24px",
-                  color: "#4A3320",
-                  fontStyle: "italic",
-                }}
-              >
-                {event.description}
-              </p>
-            )}
+            <p
+              style={{
+                fontFamily: "Cormorant Garamond, serif",
+                fontSize: "12px",
+                color: "#6B4C30",
+                fontStyle: "italic",
+                lineHeight: 1.35,
+                opacity: 0.85,
+              }}
+            >
+              {event.description}
+            </p>
           </div>
-        </button>
-        <div
-          className="flex-shrink-0 w-2.5 h-2.5 rounded-full mt-2"
-          style={{
-            background: color,
-            boxShadow: `0 0 6px ${color}80`,
-            minWidth: "10px",
-          }}
-        />
+        </div>
       </div>
     </div>
   );
@@ -260,6 +296,19 @@ export default function Index() {
     }
   }, []);
 
+  // Вычисляем глубину (depth) для каждого события отдельно по левой и правой стороне
+  const depthMap = useMemo(() => {
+    const leftEvents = events
+      .filter((e) => e.side === "left")
+      .map((e, i) => ({ ...e, index: events.indexOf(e) }));
+    const rightEvents = events
+      .filter((e) => e.side === "right")
+      .map((e, i) => ({ ...e, index: events.indexOf(e) }));
+    const leftDepths = computeDepths(leftEvents);
+    const rightDepths = computeDepths(rightEvents);
+    return new Map([...leftDepths, ...rightDepths]);
+  }, []);
+
   return (
     <div className="history-root">
       <header className="history-header">
@@ -391,8 +440,8 @@ export default function Index() {
             <RulerBadge key={`${ruler.name}-${ruler.yearStart}`} ruler={ruler} />
           ))}
 
-          {events.map((event) => (
-            <EventCard key={`${event.title}-${event.year}`} event={event} />
+          {events.map((event, i) => (
+            <EventCard key={`${event.title}-${event.year}`} event={event} depth={depthMap.get(i) ?? 0} />
           ))}
         </div>
       </div>
