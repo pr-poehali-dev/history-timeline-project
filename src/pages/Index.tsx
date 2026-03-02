@@ -38,7 +38,8 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
   return (
     <button
       onClick={() => setOpen(!open)}
-      className="transition-all duration-200 w-full"
+      className="transition-all duration-200"
+      style={{ width: "100%" }}
     >
       <div
         className="parchment-card hover:shadow-lg transition-all duration-200"
@@ -193,28 +194,35 @@ export default function Index() {
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
-        <div style={{ padding: "16px 0 60px 0" }}>
+        <div style={{ padding: "16px 0 60px 0", display: "inline-block", minWidth: "100%" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto", width: "max-content", minWidth: "100%" }}>
           {groupEventsByRuler(sortedEvents).map((group, gi) => {
             const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
             return (
-              <div
-                key={gi}
-                style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
-                ref={el => { eventRefs.current[gi] = el; }}
-              >
-                {/* Карточка правителя — растягивается на всю группу */}
-                <RulerCell ruler={group.ruler} />
+              <>
+                {/* Карточка правителя */}
+                <div
+                  key={`ruler-${gi}`}
+                  style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
+                  ref={el => { eventRefs.current[gi] = el; }}
+                >
+                  <RulerCell ruler={group.ruler} />
+                </div>
 
                 {/* Стопка событий */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px" }}>
+                <div
+                  key={`events-${gi}`}
+                  style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "3px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}
+                >
                   {group.events.map((event, ei) => (
                     <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
                   ))}
                 </div>
-              </div>
+              </>
             );
           })}
+          </div>
         </div>
       </div>
 
