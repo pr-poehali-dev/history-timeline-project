@@ -80,19 +80,9 @@ function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYea
     <div style={{
       width: "200px",
       flexShrink: 0,
-      paddingRight: "12px",
-      position: "relative",
+      paddingRight: "14px",
       alignSelf: "stretch",
     }}>
-      {/* Вертикальная линия-ось */}
-      <div style={{
-        position: "absolute",
-        right: 0,
-        top: 0,
-        bottom: 0,
-        width: "2px",
-        background: "rgba(139,90,43,0.22)",
-      }} />
       <div style={{
         height: "100%",
         background: `${eraColor}14`,
@@ -105,7 +95,7 @@ function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYea
       }}>
         <span style={{
           fontFamily: "Cormorant Garamond, serif",
-          fontSize: "16px",
+          fontSize: "26px",
           fontWeight: 700,
           color: eraColor,
           lineHeight: 1.2,
@@ -115,17 +105,17 @@ function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYea
         </span>
         <span style={{
           fontFamily: "Oswald, sans-serif",
-          fontSize: "11px",
+          fontSize: "14px",
           color: `${eraColor}80`,
           letterSpacing: "0.04em",
-          marginTop: "3px",
+          marginTop: "4px",
           display: "block",
         }}>
           {ruler.yearStart}–{ruler.yearEnd}
         </span>
         <span style={{
           fontFamily: "Cormorant Garamond, serif",
-          fontSize: "12px",
+          fontSize: "15px",
           color: `${eraColor}90`,
           fontStyle: "italic",
           marginTop: "2px",
