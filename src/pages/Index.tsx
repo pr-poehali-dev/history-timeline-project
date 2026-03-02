@@ -72,8 +72,8 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
 }
 
 // ─── Карточка правителя ───────────────────────────────────────
-function RulerCell({ ruler, show }: { ruler: ReturnType<typeof getRulerAtYear>; show: boolean }) {
-  if (!ruler || !show) return <div style={{ width: "190px", flexShrink: 0 }} />;
+function RulerCell({ ruler }: { ruler: ReturnType<typeof getRulerAtYear> }) {
+  if (!ruler) return <div style={{ width: "190px", flexShrink: 0 }} />;
   const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#8B4513";
 
   return (
@@ -81,8 +81,10 @@ function RulerCell({ ruler, show }: { ruler: ReturnType<typeof getRulerAtYear>; 
       width: "190px",
       flexShrink: 0,
       paddingRight: "14px",
+      alignSelf: "stretch",
     }}>
       <div style={{
+        height: "100%",
         background: `${eraColor}14`,
         border: `1px solid ${eraColor}35`,
         borderRadius: "2px",
@@ -197,18 +199,16 @@ export default function Index() {
             return (
               <div
                 key={gi}
-                style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
+                style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
                 ref={el => { eventRefs.current[gi] = el; }}
               >
+                {/* Карточка правителя — растягивается на всю группу */}
+                <RulerCell ruler={group.ruler} />
+
                 {/* Стопка событий */}
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px" }}>
                   {group.events.map((event, ei) => (
-                    <div key={ei} style={{ display: "flex", alignItems: "flex-start", gap: "0" }}>
-                      <RulerCell ruler={group.ruler} show={ei === 0} />
-                      <div style={{ flex: 1 }}>
-                        <EventCard event={event} eraName={getEraName(event.year)} />
-                      </div>
-                    </div>
+                    <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
                   ))}
                 </div>
               </div>
