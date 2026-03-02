@@ -72,30 +72,28 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
 }
 
 // ─── Карточка правителя ───────────────────────────────────────
-function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYear>; rowCount: number }) {
-  if (!ruler) return <div style={{ width: "200px", flexShrink: 0 }} />;
+function RulerCell({ ruler, show }: { ruler: ReturnType<typeof getRulerAtYear>; show: boolean }) {
+  if (!ruler || !show) return <div style={{ width: "190px", flexShrink: 0 }} />;
   const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#8B4513";
 
   return (
     <div style={{
-      width: "200px",
+      width: "190px",
       flexShrink: 0,
       paddingRight: "14px",
-      alignSelf: "stretch",
     }}>
       <div style={{
-        height: "100%",
         background: `${eraColor}14`,
         border: `1px solid ${eraColor}35`,
         borderRadius: "2px",
-        padding: "10px 10px",
+        padding: "6px 10px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
       }}>
         <span style={{
           fontFamily: "Cormorant Garamond, serif",
-          fontSize: "26px",
+          fontSize: "22px",
           fontWeight: 700,
           color: eraColor,
           lineHeight: 1.2,
@@ -105,23 +103,16 @@ function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYea
         </span>
         <span style={{
           fontFamily: "Oswald, sans-serif",
-          fontSize: "14px",
+          fontSize: "11px",
           color: `${eraColor}80`,
-          letterSpacing: "0.04em",
-          marginTop: "4px",
-          display: "block",
-        }}>
-          {ruler.yearStart}–{ruler.yearEnd}
-        </span>
-        <span style={{
-          fontFamily: "Cormorant Garamond, serif",
-          fontSize: "15px",
-          color: `${eraColor}90`,
-          fontStyle: "italic",
+          letterSpacing: "0.03em",
           marginTop: "2px",
           display: "block",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
         }}>
-          {ruler.title}
+          {ruler.yearStart}–{ruler.yearEnd} · {ruler.title}
         </span>
       </div>
     </div>
@@ -206,16 +197,18 @@ export default function Index() {
             return (
               <div
                 key={gi}
-                style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
+                style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
                 ref={el => { eventRefs.current[gi] = el; }}
               >
-                {/* Карточка правителя — одна на всю группу */}
-                <RulerCell ruler={group.ruler} rowCount={group.events.length} />
-
                 {/* Стопка событий */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px", paddingLeft: "14px" }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px" }}>
                   {group.events.map((event, ei) => (
-                    <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
+                    <div key={ei} style={{ display: "flex", alignItems: "flex-start", gap: "0" }}>
+                      <RulerCell ruler={group.ruler} show={ei === 0} />
+                      <div style={{ flex: 1 }}>
+                        <EventCard event={event} eraName={getEraName(event.year)} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
