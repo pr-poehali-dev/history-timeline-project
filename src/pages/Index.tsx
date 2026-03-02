@@ -49,10 +49,7 @@ function PersonCard({ person }: { person: FamousPerson }) {
         textAlign: "center",
         height: "100%",
       }}>
-        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "10px", color: `${color}90`, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-          {personTypeLabel[person.type]}
-        </span>
-        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2, marginTop: "2px" }}>
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2 }}>
           {person.name}
         </span>
         <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: `${color}70`, marginTop: "2px" }}>
