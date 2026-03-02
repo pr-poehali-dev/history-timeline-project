@@ -47,7 +47,7 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
           borderTop: "1px solid rgba(139,90,43,0.18)",
           borderBottom: "1px solid rgba(139,90,43,0.18)",
           borderRight: "1px solid rgba(139,90,43,0.12)",
-          display: "inline-block",
+          display: "block",
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "2px" }}>
@@ -58,7 +58,7 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
             {eraName}
           </span>
         </div>
-        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, whiteSpace: "nowrap" }}>
+        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2 }}>
           {event.title}
         </p>
         {open && (
