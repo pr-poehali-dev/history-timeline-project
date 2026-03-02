@@ -38,7 +38,7 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
   return (
     <button
       onClick={() => setOpen(!open)}
-      className="text-left transition-all duration-200 w-full"
+      className="transition-all duration-200 w-full"
     >
       <div
         className="parchment-card hover:shadow-lg transition-all duration-200"
@@ -47,22 +47,23 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
           borderTop: "1px solid rgba(139,90,43,0.18)",
           borderBottom: "1px solid rgba(139,90,43,0.18)",
           borderRight: "1px solid rgba(139,90,43,0.12)",
-          display: "block",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "2px" }}>
-          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "26px", color: eraColor, fontWeight: 500, flexShrink: 0 }}>
-            {event.year} г.
-          </span>
-          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "16px", color: `${eraColor}99`, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
-            {eraName}
-          </span>
-        </div>
-        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2 }}>
+        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "26px", color: eraColor, fontWeight: 500, lineHeight: 1.1 }}>
+          {event.year} г.
+        </span>
+        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, marginTop: "2px" }}>
           {event.title}
         </p>
+        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "12px", color: `${eraColor}80`, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: "4px" }}>
+          {eraName}
+        </span>
         {open && (
-          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px", whiteSpace: "normal", maxWidth: "600px" }}>
+          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "26px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "8px" }}>
             {event.description}
           </p>
         )}
