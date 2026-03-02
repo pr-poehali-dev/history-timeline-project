@@ -76,7 +76,7 @@ export const rulers: Ruler[] = [
 
 export const events: HistoryEvent[] = [
   // ── ЛЕВАЯ КОЛОНКА: война и политика ──
-  { year: 862, title: "Зарождение российской государственности", description: "Новгород — начало русской государственности", side: "left", category: "politics" },
+  { year: 862, title: "Начало", description: "Новгород — начало русской государственности", side: "left", category: "politics" },
   { year: 882, title: "Присоединение Киева", description: "Олег объединяет Новгород и Киев, создавая Киевскую Русь", side: "left", category: "politics" },
 
   { year: 1147, title: "Основание Москвы", description: "Юрий Долгорукий упоминает Москву в летописях — начало будущей столицы", side: "left", category: "politics" },
