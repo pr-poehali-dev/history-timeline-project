@@ -31,23 +31,28 @@ function getPersonsNearYear(year: number): FamousPerson[] {
   return famousPersons.filter(p => Math.abs(p.yearBorn - year) <= 40);
 }
 
+const personEmoji: Record<string, string> = {
+  science: "🔬", literature: "📖", art: "🎭",
+};
+
 // ─── Карточка великого человека ──────────────────────────────
 function PersonCard({ person }: { person: FamousPerson }) {
   const [open, setOpen] = useState(false);
-  const color = personColors[person.type];
+  const emoji = personEmoji[person.type] || "⭐";
   return (
-    <button onClick={() => setOpen(!open)} className="person-card transition-all duration-200" style={{ borderLeft: `3px solid ${color}` }}>
-      <span style={{ fontSize: "11px", color, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+    <button onClick={() => setOpen(!open)} className="person-card">
+      <span style={{ fontSize: "18px", marginBottom: "4px", display: "block" }}>{emoji}</span>
+      <span style={{ fontSize: "11px", color: "#43b89c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
         {person.role}
       </span>
-      <span style={{ fontSize: "14px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3, marginTop: "3px", display: "block" }}>
+      <span style={{ fontSize: "13px", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.3, marginTop: "3px", display: "block" }}>
         {person.name}
       </span>
-      <span style={{ fontSize: "11px", color: "#555", marginTop: "2px", display: "block" }}>
+      <span style={{ fontSize: "11px", color: "#7b8bad", marginTop: "2px", display: "block", fontWeight: 600 }}>
         {person.yearBorn}
       </span>
       {open && (
-        <p style={{ fontSize: "13px", color: "#aaa", lineHeight: 1.6, marginTop: "8px", textAlign: "left" }}>
+        <p style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.7, marginTop: "10px", textAlign: "left", background: "#f0fff8", borderRadius: "10px", padding: "10px 12px" }}>
           {person.description}
         </p>
       )}
@@ -62,25 +67,31 @@ function getRulerAtYear(year: number) {
   return rulers.find(r => year >= r.yearStart && year <= r.yearEnd);
 }
 
+const categoryEmoji: Record<string, string> = {
+  war: "⚔️", culture: "🎨", politics: "🏛️", church: "✝️", expansion: "🗺️", reform: "⚙️",
+};
+
 // ─── Одна карточка события ────────────────────────────────────
 function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string }) {
   const [open, setOpen] = useState(false);
-  const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
-  const eraColor = era?.color || "#c9a227";
+  const emoji = categoryEmoji[event.category] || "📌";
 
   return (
-    <button onClick={() => setOpen(!open)} className="event-card transition-all duration-200">
-      <span style={{ fontSize: "12px", fontWeight: 700, color: eraColor, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-        {event.year}
-      </span>
-      <p style={{ fontSize: "16px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3, margin: "4px 0 0" }}>
+    <button onClick={() => setOpen(!open)} className="event-card">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "4px" }}>
+        <span style={{ fontSize: "18px" }}>{emoji}</span>
+        <span style={{ fontSize: "13px", fontWeight: 800, color: "#6c63ff", letterSpacing: "0.04em" }}>
+          {event.year} год
+        </span>
+      </div>
+      <p style={{ fontSize: "16px", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.3, margin: "0 0 4px" }}>
         {event.title}
       </p>
-      <span style={{ fontSize: "11px", color: "#666", marginTop: "2px", display: "block" }}>
+      <span style={{ fontSize: "11px", color: "#7b8bad", fontWeight: 500 }}>
         {eraName}
       </span>
       {open && (
-        <p style={{ fontSize: "14px", color: "#aaa", lineHeight: 1.6, marginTop: "8px", textAlign: "left" }}>
+        <p style={{ fontSize: "14px", color: "#4a5568", lineHeight: 1.7, marginTop: "10px", textAlign: "left", background: "#f0f4ff", borderRadius: "10px", padding: "10px 12px" }}>
           {event.description}
         </p>
       )}
@@ -91,18 +102,18 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
 // ─── Карточка правителя ───────────────────────────────────────
 function RulerCell({ ruler }: { ruler: ReturnType<typeof getRulerAtYear> }) {
   if (!ruler) return <div style={{ width: "130px", flexShrink: 0 }} />;
-  const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#c9a227";
 
   return (
     <div style={{ width: "130px", height: "100%", flexShrink: 0 }}>
-      <div className="ruler-card" style={{ borderLeft: `3px solid ${eraColor}40` }}>
-        <span style={{ fontSize: "13px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3 }}>
+      <div className="ruler-card">
+        <span style={{ fontSize: "18px", marginBottom: "4px" }}>👑</span>
+        <span style={{ fontSize: "13px", fontWeight: 800, color: "#6c63ff", lineHeight: 1.3 }}>
           {ruler.name}
         </span>
-        <span style={{ fontSize: "10px", color: "#666", marginTop: "3px", display: "block", lineHeight: 1.4 }}>
+        <span style={{ fontSize: "10px", color: "#7b8bad", marginTop: "4px", display: "block", fontWeight: 600 }}>
           {ruler.yearStart}–{ruler.yearEnd}
         </span>
-        <span style={{ fontSize: "10px", color: "#555", display: "block", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: "10px", color: "#a0aec0", display: "block", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {ruler.title}
         </span>
       </div>
@@ -142,8 +153,10 @@ export default function Index() {
   return (
     <div className="history-root">
       <header className="history-header">
-        <h1 className="history-title">Краткая история России</h1>
-
+        <h1 className="history-title">🇷🇺 Краткая история России</h1>
+        <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: "4px 0 0", fontWeight: 500 }}>
+          862 год — наши дни · нажми на карточку, чтобы узнать больше
+        </p>
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
@@ -198,7 +211,7 @@ export default function Index() {
       </div>
 
       <footer className="history-footer">
-        862 — наши дни
+        ⚔️ события · 👑 правители · 🔬 великие люди
       </footer>
     </div>
   );
