@@ -154,8 +154,7 @@ export const famousPersons: FamousPerson[] = [
   { name: "Антон Чехов", role: "Писатель", yearBorn: 1860, yearDied: 1904, description: "Мастер короткого рассказа, реформатор театра", type: "literature" },
   { name: "Максим Горький", role: "Писатель", yearBorn: 1868, yearDied: 1936, description: "«На дне», «Мать» — символ пролетарской литературы", type: "literature" },
   { name: "Михаил Булгаков", role: "Писатель", yearBorn: 1891, yearDied: 1940, description: "«Мастер и Маргарита» — мистический шедевр советской эпохи", type: "literature" },
-  { name: "Борис Пастернак", role: "Поэт, писатель", yearBorn: 1890, yearDied: 1960, description: "«Доктор Живаго», Нобелевская премия 1958 года", type: "literature" },
-  { name: "Александр Солженицын", role: "Писатель", yearBorn: 1918, yearDied: 2008, description: "«Архипелаг ГУЛАГ» — свидетельство эпохи репрессий", type: "literature" },
+
   // Наука
   { name: "Андрей Рублёв", role: "Иконописец", yearBorn: 1360, yearDied: 1430, description: "Создал «Троицу» — величайшую икону православного мира", type: "art" },
   { name: "Иван Кулибин", role: "Механик-изобретатель", yearBorn: 1735, yearDied: 1818, description: "Создал часы-яйцо для Екатерины II, проекты мостов и протезов", type: "science" },
