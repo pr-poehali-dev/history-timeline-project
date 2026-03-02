@@ -28,128 +28,129 @@ function getRulerAtYear(year: number) {
   return rulers.find(r => year >= r.yearStart && year <= r.yearEnd);
 }
 
-// ─── EventRow: столб правителя + карточка ────────────────────
-function EventRow({ event, eraName }: { event: HistoryEvent; eraName: string }) {
+// ─── Одна карточка события ────────────────────────────────────
+function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string }) {
   const [open, setOpen] = useState(false);
   const color = categoryColors[event.category];
   const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
   const eraColor = era?.color || "#8B4513";
-  const ruler = getRulerAtYear(event.year);
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 0, width: "100%", marginBottom: "3px" }}>
-
-      {/* ── Центральный столб правителя ── */}
-      <div style={{
-        width: "180px",
-        flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "10px",
-        paddingRight: "12px",
-        position: "relative",
-      }}>
-        {/* Вертикальная линия столба */}
-        <div style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: "2px",
-          background: "linear-gradient(180deg, transparent, rgba(139,90,43,0.25) 10%, rgba(139,90,43,0.25) 90%, transparent)",
-        }} />
-        {ruler && (
-          <div style={{ textAlign: "right", paddingRight: "10px" }}>
-            <div style={{
-              display: "inline-block",
-              background: `${eraColor}18`,
-              border: `1px solid ${eraColor}40`,
-              borderRadius: "2px",
-              padding: "4px 8px",
-            }}>
-              <span style={{ fontSize: "12px", display: "block", marginBottom: "1px" }}>👑</span>
-              <span style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "14px",
-                fontWeight: 700,
-                color: eraColor,
-                display: "block",
-                lineHeight: 1.2,
-                whiteSpace: "nowrap",
-              }}>
-                {ruler.name}
-              </span>
-              <span style={{
-                fontFamily: "Oswald, sans-serif",
-                fontSize: "10px",
-                color: `${eraColor}90`,
-                letterSpacing: "0.03em",
-                display: "block",
-                whiteSpace: "nowrap",
-              }}>
-                {ruler.yearStart}–{ruler.yearEnd}
-              </span>
-            </div>
-          </div>
+    <button
+      onClick={() => setOpen(!open)}
+      className="text-left transition-all duration-200 w-full"
+    >
+      <div
+        className="parchment-card hover:shadow-lg transition-all duration-200"
+        style={{
+          borderLeft: `4px solid ${color}`,
+          borderTop: "1px solid rgba(139,90,43,0.18)",
+          borderBottom: "1px solid rgba(139,90,43,0.18)",
+          borderRight: "1px solid rgba(139,90,43,0.12)",
+          display: "inline-block",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "2px" }}>
+          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "26px", color: eraColor, fontWeight: 500, flexShrink: 0 }}>
+            {event.year} г.
+          </span>
+          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "16px", color: `${eraColor}99`, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+            {eraName}
+          </span>
+        </div>
+        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, whiteSpace: "nowrap" }}>
+          {event.title}
+        </p>
+        {open && (
+          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px", whiteSpace: "normal", maxWidth: "600px" }}>
+            {event.description}
+          </p>
         )}
       </div>
+    </button>
+  );
+}
 
-      {/* Точка-коннектор на оси */}
+// ─── Карточка правителя ───────────────────────────────────────
+function RulerCell({ ruler, rowCount }: { ruler: ReturnType<typeof getRulerAtYear>; rowCount: number }) {
+  if (!ruler) return <div style={{ width: "200px", flexShrink: 0 }} />;
+  const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#8B4513";
+
+  return (
+    <div style={{
+      width: "200px",
+      flexShrink: 0,
+      paddingRight: "12px",
+      position: "relative",
+      alignSelf: "stretch",
+    }}>
+      {/* Вертикальная линия-ось */}
       <div style={{
-        width: "10px",
-        flexShrink: 0,
+        position: "absolute",
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: "2px",
+        background: "rgba(139,90,43,0.22)",
+      }} />
+      <div style={{
+        height: "100%",
+        background: `${eraColor}14`,
+        border: `1px solid ${eraColor}35`,
+        borderRadius: "2px",
+        padding: "10px 10px",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "18px",
+        justifyContent: "center",
       }}>
-        <div style={{
-          width: "8px",
-          height: "8px",
-          borderRadius: "50%",
-          background: color,
-          boxShadow: `0 0 6px ${color}80`,
-          flexShrink: 0,
-        }} />
+        <span style={{
+          fontFamily: "Cormorant Garamond, serif",
+          fontSize: "16px",
+          fontWeight: 700,
+          color: eraColor,
+          lineHeight: 1.2,
+          display: "block",
+        }}>
+          {ruler.name}
+        </span>
+        <span style={{
+          fontFamily: "Oswald, sans-serif",
+          fontSize: "11px",
+          color: `${eraColor}80`,
+          letterSpacing: "0.04em",
+          marginTop: "3px",
+          display: "block",
+        }}>
+          {ruler.yearStart}–{ruler.yearEnd}
+        </span>
+        <span style={{
+          fontFamily: "Cormorant Garamond, serif",
+          fontSize: "12px",
+          color: `${eraColor}90`,
+          fontStyle: "italic",
+          marginTop: "2px",
+          display: "block",
+        }}>
+          {ruler.title}
+        </span>
       </div>
-
-      {/* ── Карточка события ── */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="text-left transition-all duration-200"
-        style={{ display: "inline-block", paddingLeft: "12px" }}
-      >
-        <div
-          className="parchment-card hover:shadow-lg transition-all duration-200"
-          style={{
-            borderLeft: `4px solid ${color}`,
-            borderTop: "1px solid rgba(139,90,43,0.18)",
-            borderBottom: "1px solid rgba(139,90,43,0.18)",
-            borderRight: "1px solid rgba(139,90,43,0.12)",
-            display: "inline-block",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "2px" }}>
-            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "26px", color: eraColor, fontWeight: 500, flexShrink: 0 }}>
-              {event.year} г.
-            </span>
-            <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "16px", color: `${eraColor}99`, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
-              {eraName}
-            </span>
-          </div>
-          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, whiteSpace: "nowrap" }}>
-            {event.title}
-          </p>
-          {open && (
-            <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px", whiteSpace: "normal", maxWidth: "600px" }}>
-              {event.description}
-            </p>
-          )}
-        </div>
-      </button>
     </div>
   );
+}
+
+// Группируем события по правителю (последовательные одинаковые — в одну группу)
+function groupEventsByRuler(evts: typeof sortedEvents) {
+  const groups: { ruler: ReturnType<typeof getRulerAtYear>; events: typeof sortedEvents }[] = [];
+  for (const ev of evts) {
+    const ruler = getRulerAtYear(ev.year);
+    const last = groups[groups.length - 1];
+    if (last && last.ruler?.name === ruler?.name) {
+      last.events.push(ev);
+    } else {
+      groups.push({ ruler, events: [ev] });
+    }
+  }
+  return groups;
 }
 
 
@@ -209,16 +210,24 @@ export default function Index() {
 
       <div className="timeline-scroll" ref={scrollRef}>
         <div style={{ padding: "16px 0 60px 0" }}>
-          {sortedEvents.map((event, i) => {
-            const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
+          {groupEventsByRuler(sortedEvents).map((group, gi) => {
+            const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
             return (
               <div
-                key={i}
-                ref={el => { eventRefs.current[i] = el; }}
-                style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}
+                key={gi}
+                style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
+                ref={el => { eventRefs.current[gi] = el; }}
               >
-                <EventRow event={event} eraName={getEraName(event.year)} />
+                {/* Карточка правителя — одна на всю группу */}
+                <RulerCell ruler={group.ruler} rowCount={group.events.length} />
+
+                {/* Стопка событий */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px", paddingLeft: "14px" }}>
+                  {group.events.map((event, ei) => (
+                    <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
+                  ))}
+                </div>
               </div>
             );
           })}
