@@ -62,26 +62,12 @@ function EventCard({ event }: { event: HistoryEvent }) {
             }}
           >
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              {!isLeft && (
-                <span
-                  className="text-xs font-bold px-1.5 py-0.5 rounded"
-                  style={{
-                    background: color,
-                    color: "#F5E6C8",
-                    fontFamily: "Oswald, sans-serif",
-                    letterSpacing: "0.05em",
-                    fontSize: "9px",
-                  }}
-                >
-                  {categoryLabels[event.category]}
-                </span>
-              )}
               <span
                 className="font-bold"
                 style={{
                   fontFamily: "Oswald, sans-serif",
                   color: "#8B4513",
-                  fontSize: "12px",
+                  fontSize: "24px",
                 }}
               >
                 {event.year} г.
@@ -91,7 +77,7 @@ function EventCard({ event }: { event: HistoryEvent }) {
               className="font-semibold leading-snug"
               style={{
                 fontFamily: "Cormorant Garamond, serif",
-                fontSize: "14px",
+                fontSize: "28px",
                 color: "#2C1A0E",
                 fontWeight: 600,
               }}
@@ -103,7 +89,7 @@ function EventCard({ event }: { event: HistoryEvent }) {
                 className="mt-1 leading-relaxed"
                 style={{
                   fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "12px",
+                  fontSize: "24px",
                   color: "#4A3320",
                   fontStyle: "italic",
                 }}
@@ -160,7 +146,7 @@ function RulerBadge({ ruler }: { ruler: Ruler }) {
           <span
             style={{
               fontFamily: "Cormorant Garamond, serif",
-              fontSize: "11px",
+              fontSize: "22px",
               fontWeight: 700,
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -176,7 +162,7 @@ function RulerBadge({ ruler }: { ruler: Ruler }) {
             <span
               style={{
                 fontFamily: "Oswald, sans-serif",
-                fontSize: "8px",
+                fontSize: "16px",
                 opacity: 0.65,
                 display: "block",
                 textAlign: "center",
@@ -352,7 +338,7 @@ export default function Index() {
               <span
                 style={{
                   fontFamily: "Oswald, sans-serif",
-                  fontSize: "11px",
+                  fontSize: "22px",
                   color: "rgba(139,90,43,0.75)",
                   letterSpacing: "0.06em",
                   fontWeight: 400,
