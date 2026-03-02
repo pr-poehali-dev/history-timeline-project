@@ -241,12 +241,12 @@ export default function Index() {
       <div className="timeline-scroll" ref={scrollRef}>
         <div style={{ padding: "16px 0 60px 0", display: "flex", justifyContent: "center" }}>
           <div style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "3px" }}>
-          {groupEventsByRuler(sortedEvents).map((group, gi) => {
+          {(() => {
+            const seenNames = new Set<string>();
+            return groupEventsByRuler(sortedEvents).map((group, gi) => {
             const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
             const span = group.events.length;
-            // Уникальные персоны на каждое событие группы
-            const seenNames = new Set<string>();
             return (
               <>
                 {/* Карточка правителя — растягивается на span строк */}
@@ -288,7 +288,8 @@ export default function Index() {
                 })}
               </>
             );
-          })}
+          });
+          })()}
           </div>
         </div>
       </div>
