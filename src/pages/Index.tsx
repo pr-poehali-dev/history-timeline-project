@@ -194,8 +194,8 @@ export default function Index() {
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
-        <div style={{ padding: "16px 0 60px 0", display: "inline-block", minWidth: "100%" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "auto auto", width: "max-content", minWidth: "100%" }}>
+        <div style={{ padding: "16px 0 60px 0", display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto" }}>
           {groupEventsByRuler(sortedEvents).map((group, gi) => {
             const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
