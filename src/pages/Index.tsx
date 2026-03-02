@@ -279,15 +279,10 @@ function RulerBadge({ ruler }: { ruler: Ruler }) {
   );
 }
 
-const CENTURY_YEARS = Array.from(
-  { length: Math.ceil(TOTAL_YEARS / 100) + 1 },
-  (_, i) => START_YEAR - i * 100
-).filter((y) => y >= END_YEAR && y <= START_YEAR);
-
-const DECADE_TICKS = Array.from(
-  { length: Math.ceil(TOTAL_YEARS / 10) + 1 },
-  (_, i) => START_YEAR - i * 10
-).filter((y) => y >= END_YEAR && y <= START_YEAR && y % 100 !== 0);
+const ALL_YEARS = Array.from(
+  { length: TOTAL_YEARS + 1 },
+  (_, i) => START_YEAR - i
+).filter((y) => y >= END_YEAR);
 
 export default function Index() {
   const totalHeight = TOTAL_YEARS * YEAR_HEIGHT + 200;
@@ -360,62 +355,75 @@ export default function Index() {
         <div className="timeline-container" style={{ height: `${totalHeight}px` }}>
           <div className="timeline-axis" style={{ height: `${totalHeight}px` }} />
 
-          {CENTURY_YEARS.map((year) => (
-            <div
-              key={`century-${year}`}
-              className="absolute left-1/2"
-              style={{
-                top: `${yearToOffset(year)}px`,
-                transform: "translateX(-50%)",
-                width: "320px",
-                height: "1px",
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(139,90,43,0.5) 20%, rgba(139,90,43,0.5) 80%, transparent 100%)",
-                zIndex: 1,
-              }}
-            />
-          ))}
+          {ALL_YEARS.map((year) => {
+            const isCentury = year % 100 === 0;
+            const isDecade = year % 10 === 0 && !isCentury;
+            const isFive = year % 5 === 0 && !isDecade && !isCentury;
+            const top = yearToOffset(year);
 
-          {CENTURY_YEARS.map((year) => (
-            <div
-              key={`label-${year}`}
-              className="absolute"
-              style={{
-                top: `${yearToOffset(year) - 8}px`,
-                left: "50%",
-                transform: "translateX(calc(-50% - 185px))",
-                zIndex: 3,
-                pointerEvents: "none",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "Oswald, sans-serif",
-                  fontSize: "22px",
-                  color: "rgba(139,90,43,0.75)",
-                  letterSpacing: "0.06em",
-                  fontWeight: 400,
-                }}
-              >
-                {year} г.
-              </span>
-            </div>
-          ))}
+            // Длина засечки: век — длинная с двух сторон, десяток — средняя, 5 лет — короткая, год — минимальная
+            const tickLen = isCentury ? 28 : isDecade ? 16 : isFive ? 9 : 4;
+            const opacity = isCentury ? 0.85 : isDecade ? 0.55 : isFive ? 0.35 : 0.18;
+            const thickness = isCentury ? 1.5 : 1;
 
-          {DECADE_TICKS.map((year) => (
-            <div
-              key={`decade-${year}`}
-              className="absolute left-1/2"
-              style={{
-                top: `${yearToOffset(year)}px`,
-                transform: "translateX(-50%)",
-                width: "80px",
-                height: "1px",
-                background: "rgba(139,90,43,0.2)",
-                zIndex: 1,
-              }}
-            />
-          ))}
+            return (
+              <div key={`tick-${year}`} className="absolute" style={{ top: `${top}px`, left: "50%", transform: "translateX(-50%)", width: "0", zIndex: 2, pointerEvents: "none" }}>
+                {/* Левая засечка */}
+                <div style={{
+                  position: "absolute",
+                  right: "2px",
+                  top: "0",
+                  width: `${tickLen}px`,
+                  height: `${thickness}px`,
+                  background: `rgba(139,90,43,${opacity})`,
+                  transform: "translateY(-50%)",
+                }} />
+                {/* Правая засечка */}
+                <div style={{
+                  position: "absolute",
+                  left: "2px",
+                  top: "0",
+                  width: `${tickLen}px`,
+                  height: `${thickness}px`,
+                  background: `rgba(139,90,43,${opacity})`,
+                  transform: "translateY(-50%)",
+                }} />
+                {/* Подпись года — только для веков и десятков */}
+                {(isCentury || isDecade) && (
+                  <>
+                    <span style={{
+                      position: "absolute",
+                      right: `${tickLen + 6}px`,
+                      top: "0",
+                      transform: "translateY(-50%)",
+                      fontFamily: "Oswald, sans-serif",
+                      fontSize: isCentury ? "18px" : "11px",
+                      color: isCentury ? "rgba(139,90,43,0.85)" : "rgba(139,90,43,0.5)",
+                      fontWeight: isCentury ? 500 : 300,
+                      letterSpacing: "0.04em",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {year}
+                    </span>
+                    <span style={{
+                      position: "absolute",
+                      left: `${tickLen + 6}px`,
+                      top: "0",
+                      transform: "translateY(-50%)",
+                      fontFamily: "Oswald, sans-serif",
+                      fontSize: isCentury ? "18px" : "11px",
+                      color: isCentury ? "rgba(139,90,43,0.85)" : "rgba(139,90,43,0.5)",
+                      fontWeight: isCentury ? 500 : 300,
+                      letterSpacing: "0.04em",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {year}
+                    </span>
+                  </>
+                )}
+              </div>
+            );
+          })}
 
           {eras.map((era) => {
             const eraTop = yearToOffset(era.yearEnd);
