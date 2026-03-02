@@ -80,7 +80,7 @@ export const events: HistoryEvent[] = [
   { year: 882, title: "Присоединение Киева", description: "Олег объединяет Новгород и Киев, создавая Киевскую Русь", side: "left", category: "politics" },
 
   { year: 1147, title: "Основание Москвы", description: "Юрий Долгорукий упоминает Москву в летописях — начало будущей столицы", side: "left", category: "politics" },
-  { year: 1237, title: "Нашествие Батыя", description: "Монголо-татарское нашествие на Русь, начало двухвекового ига", side: "left", category: "war" },
+  { year: 1237, title: "Монголо-татарское нашествие", description: "Монголо-татарское нашествие на Русь, начало двухвекового ига", side: "left", category: "war" },
   { year: 1240, title: "Невская битва", description: "Александр Невский разгромил шведских рыцарей на берегах Невы", side: "left", category: "war" },
   { year: 1242, title: "Ледовое побоище", description: "Разгром Тевтонского ордена на льду Чудского озера", side: "left", category: "war" },
   { year: 1380, title: "Куликовская битва", description: "Дмитрий Донской победил Мамая — первая крупная победа над Ордой", side: "left", category: "war" },
@@ -112,7 +112,7 @@ export const events: HistoryEvent[] = [
   // ── ПРАВАЯ КОЛОНКА: наука, культура, церковь, реформы ──
   { year: 988, title: "Крещение Руси", description: "Владимир I принял православие, Русь крестилась в Днепре — духовный поворот цивилизации", side: "right", category: "church" },
 
-  { year: 1073, title: "Изборник Святослава", description: "Создана одна из первых крупных рукописных книг Киевской Руси — энциклопедия знаний эпохи", side: "right", category: "culture" },
+  { year: 1073, title: "Первая книга", description: "Создана одна из первых крупных рукописных книг Киевской Руси — энциклопедия знаний эпохи", side: "right", category: "culture" },
   { year: 1564, title: "Первая печатная книга", description: "Иван Фёдоров напечатал «Апостол» — первую русскую датированную печатную книгу", side: "right", category: "culture" },
   { year: 1672, title: "Первый театр в России", description: "По указу царя Алексея Михайловича открылся первый придворный театр в Москве", side: "right", category: "culture" },
   { year: 1700, title: "Юлианский календарь", description: "Пётр I ввёл летоисчисление от Рождества Христова и новый год 1 января", side: "right", category: "reform" },
