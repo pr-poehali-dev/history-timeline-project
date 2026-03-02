@@ -18,14 +18,12 @@ const personColors: Record<string, string> = {
   science: "#1A4A4A",
   literature: "#6B3A00",
   art: "#3A1A4A",
-  religion: "#2A2A60",
 };
 
 const personTypeLabel: Record<string, string> = {
   science: "Наука",
   literature: "Литература",
   art: "Искусство",
-  religion: "Религия",
 };
 
 // Подбираем людей, чей период жизни пересекается с годом события (±30 лет от рождения)

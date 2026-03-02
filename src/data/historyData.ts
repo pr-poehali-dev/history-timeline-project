@@ -21,7 +21,7 @@ export interface FamousPerson {
   yearBorn: number;
   yearDied: number;
   description: string;
-  type: "science" | "literature" | "art" | "religion";
+  type: "science" | "literature" | "art";
 }
 
 export const rulers: Ruler[] = [
@@ -143,9 +143,6 @@ export const events: HistoryEvent[] = [
 ];
 
 export const famousPersons: FamousPerson[] = [
-  // Литература
-  { name: "Нестор Летописец", role: "Летописец", yearBorn: 1056, yearDied: 1114, description: "Автор «Повести временных лет» — главной летописи Древней Руси", type: "literature" },
-  { name: "Аввакум Петров", role: "Протопоп, писатель", yearBorn: 1620, yearDied: 1682, description: "Создал «Житие» — первую автобиографию в русской литературе", type: "religion" },
   { name: "Михаил Ломоносов", role: "Учёный, поэт", yearBorn: 1711, yearDied: 1765, description: "Основоположник русской науки, реформатор языка, поэт", type: "science" },
   { name: "Гавриил Державин", role: "Поэт", yearBorn: 1743, yearDied: 1816, description: "Крупнейший поэт XVIII века, предшественник Пушкина", type: "literature" },
   { name: "Николай Карамзин", role: "Историк, писатель", yearBorn: 1766, yearDied: 1826, description: "Написал 12-томную «Историю государства Российского»", type: "literature" },
