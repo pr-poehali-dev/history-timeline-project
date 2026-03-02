@@ -56,7 +56,7 @@ function PersonCard({ person }: { person: FamousPerson }) {
           {person.name}
         </span>
         <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: `${color}70`, marginTop: "2px" }}>
-          {person.yearBorn}–{person.yearDied} · {person.role}
+          {person.yearBorn} · {person.role}
         </span>
         {open && (
           <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "20px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px" }}>
@@ -128,9 +128,7 @@ function RulerCell({ ruler }: { ruler: ReturnType<typeof getRulerAtYear> }) {
   return (
     <div style={{
       width: "190px",
-      flexShrink: 0,
-      paddingRight: "14px",
-      alignSelf: "stretch",
+      height: "100%",
     }}>
       <div style={{
         height: "100%",
@@ -242,42 +240,52 @@ export default function Index() {
 
       <div className="timeline-scroll" ref={scrollRef}>
         <div style={{ padding: "16px 0 60px 0", display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "3px" }}>
           {groupEventsByRuler(sortedEvents).map((group, gi) => {
             const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
-            const persons = group.events.flatMap(ev => getPersonsNearYear(ev.year))
-              .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i);
+            const span = group.events.length;
+            // Уникальные персоны на каждое событие группы
+            const seenNames = new Set<string>();
             return (
               <>
-                {/* Карточка правителя */}
+                {/* Карточка правителя — растягивается на span строк */}
                 <div
                   key={`ruler-${gi}`}
-                  style={{ display: "flex", alignItems: "stretch", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", marginBottom: "3px" }}
                   ref={el => { eventRefs.current[gi] = el; }}
+                  style={{
+                    gridRow: `span ${span}`,
+                    opacity: filtered ? 0.25 : 1,
+                    transition: "opacity 0.3s",
+                    paddingRight: "14px",
+                  }}
                 >
                   <RulerCell ruler={group.ruler} />
                 </div>
 
-                {/* Стопка событий */}
-                <div
-                  key={`events-${gi}`}
-                  style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "3px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}
-                >
-                  {group.events.map((event, ei) => (
-                    <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
-                  ))}
-                </div>
+                {/* По одной строке на каждое событие */}
+                {group.events.map((event, ei) => {
+                  const evPersons = getPersonsNearYear(event.year).filter(p => {
+                    if (seenNames.has(p.name)) return false;
+                    seenNames.add(p.name);
+                    return true;
+                  });
+                  return (
+                    <>
+                      {/* Событие */}
+                      <div key={`ev-${gi}-${ei}`} style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}>
+                        <EventCard event={event} eraName={getEraName(event.year)} />
+                      </div>
 
-                {/* Великие люди эпохи */}
-                <div
-                  key={`persons-${gi}`}
-                  style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "3px", paddingLeft: "14px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}
-                >
-                  {persons.length > 0 ? persons.map((person, pi) => (
-                    <PersonCard key={pi} person={person} />
-                  )) : <div style={{ minHeight: "4px" }} />}
-                </div>
+                      {/* Персоны в строку */}
+                      <div key={`persons-${gi}-${ei}`} style={{ paddingLeft: "14px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", display: "flex", flexDirection: "row", gap: "3px", alignItems: "stretch" }}>
+                        {evPersons.length > 0 ? evPersons.map((person, pi) => (
+                          <PersonCard key={pi} person={person} />
+                        )) : null}
+                      </div>
+                    </>
+                  );
+                })}
               </>
             );
           })}
