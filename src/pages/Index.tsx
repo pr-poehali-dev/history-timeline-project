@@ -39,10 +39,10 @@ function EventCard({ event }: { event: HistoryEvent }) {
       className="absolute flex items-start"
       style={{
         top: `${top}px`,
-        left: isLeft ? 0 : "50%",
-        right: isLeft ? "50%" : 0,
-        paddingLeft: isLeft ? "8px" : "calc(50% + 24px)",
-        paddingRight: isLeft ? "calc(50% + 24px)" : "8px",
+        left: isLeft ? "calc(50% - 320px)" : "50%",
+        width: "320px",
+        paddingLeft: isLeft ? "8px" : "24px",
+        paddingRight: isLeft ? "24px" : "8px",
         zIndex: open ? 20 : 5,
       }}
     >
@@ -62,18 +62,20 @@ function EventCard({ event }: { event: HistoryEvent }) {
             }}
           >
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span
-                className="text-xs font-bold px-1.5 py-0.5 rounded"
-                style={{
-                  background: color,
-                  color: "#F5E6C8",
-                  fontFamily: "Oswald, sans-serif",
-                  letterSpacing: "0.05em",
-                  fontSize: "9px",
-                }}
-              >
-                {categoryLabels[event.category]}
-              </span>
+              {!isLeft && (
+                <span
+                  className="text-xs font-bold px-1.5 py-0.5 rounded"
+                  style={{
+                    background: color,
+                    color: "#F5E6C8",
+                    fontFamily: "Oswald, sans-serif",
+                    letterSpacing: "0.05em",
+                    fontSize: "9px",
+                  }}
+                >
+                  {categoryLabels[event.category]}
+                </span>
+              )}
               <span
                 className="font-bold"
                 style={{
