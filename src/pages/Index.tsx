@@ -52,6 +52,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
+  const [open, setOpen] = useState(false);
   const top = yearToOffset(event.year);
   const isLeft = event.side === "left";
   const color = categoryColors[event.category];
@@ -96,7 +97,7 @@ function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
             minWidth: "8px",
           }}
         />
-        <div className="text-left w-full">
+        <button onClick={() => setOpen(!open)} className="text-left w-full cursor-pointer">
           <div
             className="parchment-card transition-all duration-200 hover:shadow-xl"
             style={{
@@ -120,7 +121,7 @@ function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
             <p
               style={{
                 fontFamily: "Cormorant Garamond, serif",
-                fontSize: "18px",
+                fontSize: "22px",
                 color: "#2C1A0E",
                 fontWeight: 700,
                 lineHeight: 1.2,
@@ -129,20 +130,23 @@ function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
             >
               {event.title}
             </p>
-            <p
-              style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "12px",
-                color: "#6B4C30",
-                fontStyle: "italic",
-                lineHeight: 1.35,
-                opacity: 0.85,
-              }}
-            >
-              {event.description}
-            </p>
+            {open && (
+              <p
+                style={{
+                  fontFamily: "Cormorant Garamond, serif",
+                  fontSize: "13px",
+                  color: "#4A3320",
+                  fontStyle: "italic",
+                  lineHeight: 1.45,
+                  marginTop: "4px",
+                  opacity: 0.9,
+                }}
+              >
+                {event.description}
+              </p>
+            )}
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );
