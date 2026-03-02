@@ -65,12 +65,11 @@ function getRulerAtYear(year: number) {
 // ─── Одна карточка события ────────────────────────────────────
 function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string }) {
   const [open, setOpen] = useState(false);
-  const color = categoryColors[event.category];
   const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
   const eraColor = era?.color || "#c9a227";
 
   return (
-    <button onClick={() => setOpen(!open)} className="event-card transition-all duration-200" style={{ borderLeft: `3px solid ${color}` }}>
+    <button onClick={() => setOpen(!open)} className="event-card transition-all duration-200">
       <span style={{ fontSize: "12px", fontWeight: 700, color: eraColor, letterSpacing: "0.06em", textTransform: "uppercase" }}>
         {event.year}
       </span>
@@ -130,23 +129,11 @@ function groupEventsByRuler(evts: typeof sortedEvents) {
 
 // ─── Главная страница ─────────────────────────────────────────
 export default function Index() {
-  const [activeEra, setActiveEra] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const eventRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const getEraName = (year: number) =>
     eras.find(e => year >= e.yearStart && year < e.yearEnd)?.name || "";
-
-  const scrollToEra = (eraName: string) => {
-    if (!scrollRef.current) return;
-    const idx = sortedEvents.findIndex(e => {
-      const era = eras.find(er => er.name === eraName);
-      return era && e.year >= era.yearStart;
-    });
-    if (idx >= 0 && eventRefs.current[idx]) {
-      eventRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -156,26 +143,7 @@ export default function Index() {
     <div className="history-root">
       <header className="history-header">
         <h1 className="history-title">Краткая история России</h1>
-        <div className="era-legend">
-          {eras.map((era) => (
-            <button
-              key={era.name}
-              className="era-pill transition-all duration-200"
-              style={{
-                background: activeEra === era.name ? era.color : "transparent",
-                color: activeEra === era.name ? "#fff" : era.color,
-                borderColor: era.color,
-              }}
-              onClick={() => {
-                const newActive = activeEra === era.name ? null : era.name;
-                setActiveEra(newActive);
-                if (newActive) scrollToEra(newActive);
-              }}
-            >
-              {era.name}
-            </button>
-          ))}
-        </div>
+
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
@@ -184,8 +152,6 @@ export default function Index() {
           {(() => {
             const seenNames = new Set<string>();
             return groupEventsByRuler(sortedEvents).map((group, gi) => {
-            const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
-            const filtered = activeEra && era?.name !== activeEra;
             const span = group.events.length;
             return (
               <>
@@ -195,8 +161,6 @@ export default function Index() {
                   ref={el => { eventRefs.current[gi] = el; }}
                   style={{
                     gridRow: `span ${span}`,
-                    opacity: filtered ? 0.25 : 1,
-                    transition: "opacity 0.3s",
                   }}
                 >
                   <RulerCell ruler={group.ruler} />
@@ -212,12 +176,12 @@ export default function Index() {
                   return (
                     <>
                       {/* Событие */}
-                      <div key={`ev-${gi}-${ei}`} style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}>
+                      <div key={`ev-${gi}-${ei}`}>
                         <EventCard event={event} eraName={getEraName(event.year)} />
                       </div>
 
                       {/* Персоны в строку */}
-                      <div key={`persons-${gi}-${ei}`} style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", display: "flex", flexDirection: "row", gap: "6px", alignItems: "stretch" }}>
+                      <div key={`persons-${gi}-${ei}`} style={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "stretch" }}>
                         {evPersons.length > 0 ? evPersons.map((person, pi) => (
                           <PersonCard key={pi} person={person} />
                         )) : null}
