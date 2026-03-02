@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  events, eras, rulers,
-  type HistoryEvent
+  events, eras, rulers, famousPersons,
+  type HistoryEvent, type FamousPerson
 } from "@/data/historyData";
 
 // ─── Цвета ───────────────────────────────────────────────────
@@ -20,6 +20,55 @@ const personColors: Record<string, string> = {
   art: "#3A1A4A",
   religion: "#2A2A60",
 };
+
+const personTypeLabel: Record<string, string> = {
+  science: "Наука",
+  literature: "Литература",
+  art: "Искусство",
+  religion: "Религия",
+};
+
+// Подбираем людей, чей период жизни пересекается с годом события (±30 лет от рождения)
+function getPersonsNearYear(year: number): FamousPerson[] {
+  return famousPersons.filter(p => Math.abs(p.yearBorn - year) <= 40);
+}
+
+// ─── Карточка великого человека ──────────────────────────────
+function PersonCard({ person }: { person: FamousPerson }) {
+  const [open, setOpen] = useState(false);
+  const color = personColors[person.type];
+  return (
+    <button onClick={() => setOpen(!open)} className="transition-all duration-200" style={{ width: "100%", textAlign: "left" }}>
+      <div style={{
+        background: `${color}10`,
+        border: `1px solid ${color}40`,
+        borderLeft: `3px solid ${color}`,
+        borderRadius: "2px",
+        padding: "5px 10px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        textAlign: "center",
+        height: "100%",
+      }}>
+        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "10px", color: `${color}90`, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+          {personTypeLabel[person.type]}
+        </span>
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2, marginTop: "2px" }}>
+          {person.name}
+        </span>
+        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: `${color}70`, marginTop: "2px" }}>
+          {person.yearBorn}–{person.yearDied} · {person.role}
+        </span>
+        {open && (
+          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "20px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px" }}>
+            {person.description}
+          </p>
+        )}
+      </div>
+    </button>
+  );
+}
 
 const sortedEvents = [...events].sort((a, b) => a.year - b.year);
 const EVENT_ROW_H = 80;
@@ -195,10 +244,12 @@ export default function Index() {
 
       <div className="timeline-scroll" ref={scrollRef}>
         <div style={{ padding: "16px 0 60px 0", display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "auto auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto" }}>
           {groupEventsByRuler(sortedEvents).map((group, gi) => {
             const era = eras.find(e => group.events[0].year >= e.yearStart && group.events[0].year < e.yearEnd);
             const filtered = activeEra && era?.name !== activeEra;
+            const persons = group.events.flatMap(ev => getPersonsNearYear(ev.year))
+              .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i);
             return (
               <>
                 {/* Карточка правителя */}
@@ -218,6 +269,16 @@ export default function Index() {
                   {group.events.map((event, ei) => (
                     <EventCard key={ei} event={event} eraName={getEraName(event.year)} />
                   ))}
+                </div>
+
+                {/* Великие люди эпохи */}
+                <div
+                  key={`persons-${gi}`}
+                  style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "3px", paddingLeft: "14px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s" }}
+                >
+                  {persons.length > 0 ? persons.map((person, pi) => (
+                    <PersonCard key={pi} person={person} />
+                  )) : <div style={{ minHeight: "4px" }} />}
                 </div>
               </>
             );
