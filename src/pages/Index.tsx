@@ -36,34 +36,21 @@ function PersonCard({ person }: { person: FamousPerson }) {
   const [open, setOpen] = useState(false);
   const color = personColors[person.type];
   return (
-    <button onClick={() => setOpen(!open)} className="transition-all duration-200" style={{ width: "100%", textAlign: "left" }}>
-      <div style={{
-        background: `${color}10`,
-        border: `1px solid ${color}40`,
-        borderLeft: `3px solid ${color}`,
-        borderRadius: "2px",
-        padding: "5px 10px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-        height: "100%",
-      }}>
-        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "16px", fontStyle: "italic", color: `${color}90`, lineHeight: 1.2 }}>
-          {person.role}
-        </span>
-        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2, marginTop: "2px" }}>
-          {person.name}
-        </span>
-        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: `${color}70`, marginTop: "2px" }}>
-          {person.yearBorn}
-        </span>
-        {open && (
-          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "20px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px" }}>
-            {person.description}
-          </p>
-        )}
-      </div>
+    <button onClick={() => setOpen(!open)} className="person-card transition-all duration-200" style={{ borderLeft: `3px solid ${color}` }}>
+      <span style={{ fontSize: "11px", color, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+        {person.role}
+      </span>
+      <span style={{ fontSize: "14px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3, marginTop: "3px", display: "block" }}>
+        {person.name}
+      </span>
+      <span style={{ fontSize: "11px", color: "#555", marginTop: "2px", display: "block" }}>
+        {person.yearBorn}
+      </span>
+      {open && (
+        <p style={{ fontSize: "13px", color: "#aaa", lineHeight: 1.6, marginTop: "8px", textAlign: "left" }}>
+          {person.description}
+        </p>
+      )}
     </button>
   );
 }
@@ -80,88 +67,44 @@ function EventCard({ event, eraName }: { event: HistoryEvent; eraName: string })
   const [open, setOpen] = useState(false);
   const color = categoryColors[event.category];
   const era = eras.find(e => event.year >= e.yearStart && event.year < e.yearEnd);
-  const eraColor = era?.color || "#8B4513";
+  const eraColor = era?.color || "#c9a227";
 
   return (
-    <button
-      onClick={() => setOpen(!open)}
-      className="transition-all duration-200"
-      style={{ width: "100%" }}
-    >
-      <div
-        className="parchment-card hover:shadow-lg transition-all duration-200"
-        style={{
-          borderLeft: `4px solid ${color}`,
-          borderTop: "1px solid rgba(139,90,43,0.18)",
-          borderBottom: "1px solid rgba(139,90,43,0.18)",
-          borderRight: "1px solid rgba(139,90,43,0.12)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-        }}
-      >
-        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "26px", color: eraColor, fontWeight: 500, lineHeight: 1.1 }}>
-          {event.year} г.
-        </span>
-        <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "38px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, marginTop: "2px" }}>
-          {event.title}
+    <button onClick={() => setOpen(!open)} className="event-card transition-all duration-200" style={{ borderLeft: `3px solid ${color}` }}>
+      <span style={{ fontSize: "12px", fontWeight: 700, color: eraColor, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+        {event.year}
+      </span>
+      <p style={{ fontSize: "16px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3, margin: "4px 0 0" }}>
+        {event.title}
+      </p>
+      <span style={{ fontSize: "11px", color: "#666", marginTop: "2px", display: "block" }}>
+        {eraName}
+      </span>
+      {open && (
+        <p style={{ fontSize: "14px", color: "#aaa", lineHeight: 1.6, marginTop: "8px", textAlign: "left" }}>
+          {event.description}
         </p>
-        <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "12px", color: `${eraColor}80`, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: "4px" }}>
-          {eraName}
-        </span>
-        {open && (
-          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "26px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "8px" }}>
-            {event.description}
-          </p>
-        )}
-      </div>
+      )}
     </button>
   );
 }
 
 // ─── Карточка правителя ───────────────────────────────────────
 function RulerCell({ ruler }: { ruler: ReturnType<typeof getRulerAtYear> }) {
-  if (!ruler) return <div style={{ width: "190px", flexShrink: 0 }} />;
-  const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#8B4513";
+  if (!ruler) return <div style={{ width: "130px", flexShrink: 0 }} />;
+  const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#c9a227";
 
   return (
-    <div style={{
-      width: "190px",
-      height: "100%",
-    }}>
-      <div style={{
-        height: "100%",
-        background: `${eraColor}14`,
-        border: `1px solid ${eraColor}35`,
-        borderRadius: "2px",
-        padding: "6px 10px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}>
-        <span style={{
-          fontFamily: "Cormorant Garamond, serif",
-          fontSize: "22px",
-          fontWeight: 700,
-          color: eraColor,
-          lineHeight: 1.2,
-          display: "block",
-        }}>
+    <div style={{ width: "130px", height: "100%", flexShrink: 0 }}>
+      <div className="ruler-card" style={{ borderLeft: `3px solid ${eraColor}40` }}>
+        <span style={{ fontSize: "13px", fontWeight: 700, color: "#f0f0f0", lineHeight: 1.3 }}>
           {ruler.name}
         </span>
-        <span style={{
-          fontFamily: "Oswald, sans-serif",
-          fontSize: "11px",
-          color: `${eraColor}80`,
-          letterSpacing: "0.03em",
-          marginTop: "2px",
-          display: "block",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}>
-          {ruler.yearStart}–{ruler.yearEnd} · {ruler.title}
+        <span style={{ fontSize: "10px", color: "#666", marginTop: "3px", display: "block", lineHeight: 1.4 }}>
+          {ruler.yearStart}–{ruler.yearEnd}
+        </span>
+        <span style={{ fontSize: "10px", color: "#555", display: "block", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {ruler.title}
         </span>
       </div>
     </div>
@@ -212,10 +155,7 @@ export default function Index() {
   return (
     <div className="history-root">
       <header className="history-header">
-        <div className="header-ornament">⚜</div>
-        <h1 className="history-title">История России</h1>
-        <p className="history-subtitle">862 год — наши дни</p>
-        <div className="header-ornament" style={{ transform: "rotate(180deg)" }}>⚜</div>
+        <h1 className="history-title">Краткая история России</h1>
         <div className="era-legend">
           {eras.map((era) => (
             <button
@@ -223,7 +163,7 @@ export default function Index() {
               className="era-pill transition-all duration-200"
               style={{
                 background: activeEra === era.name ? era.color : "transparent",
-                color: activeEra === era.name ? "#F5E6C8" : era.color,
+                color: activeEra === era.name ? "#fff" : era.color,
                 borderColor: era.color,
               }}
               onClick={() => {
@@ -239,8 +179,8 @@ export default function Index() {
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
-        <div style={{ padding: "16px 0 60px 0", display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "3px" }}>
+        <div style={{ padding: "12px 12px 60px", display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "6px", width: "100%" }}>
           {(() => {
             const seenNames = new Set<string>();
             return groupEventsByRuler(sortedEvents).map((group, gi) => {
@@ -257,7 +197,6 @@ export default function Index() {
                     gridRow: `span ${span}`,
                     opacity: filtered ? 0.25 : 1,
                     transition: "opacity 0.3s",
-                    paddingRight: "14px",
                   }}
                 >
                   <RulerCell ruler={group.ruler} />
@@ -278,7 +217,7 @@ export default function Index() {
                       </div>
 
                       {/* Персоны в строку */}
-                      <div key={`persons-${gi}-${ei}`} style={{ paddingLeft: "14px", opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", display: "flex", flexDirection: "row", gap: "3px", alignItems: "stretch" }}>
+                      <div key={`persons-${gi}-${ei}`} style={{ opacity: filtered ? 0.25 : 1, transition: "opacity 0.3s", display: "flex", flexDirection: "row", gap: "6px", alignItems: "stretch" }}>
                         {evPersons.length > 0 ? evPersons.map((person, pi) => (
                           <PersonCard key={pi} person={person} />
                         )) : null}
@@ -295,11 +234,7 @@ export default function Index() {
       </div>
 
       <footer className="history-footer">
-        <span>⚜</span>
-        <span style={{ fontFamily: "Cormorant Garamond, serif", fontStyle: "italic", fontSize: "13px" }}>
-          Слева — события истории · Справа — правители и великие люди эпохи
-        </span>
-        <span>⚜</span>
+        862 — наши дни
       </footer>
     </div>
   );
