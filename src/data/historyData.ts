@@ -15,6 +15,15 @@ export interface HistoryEvent {
   category: "war" | "culture" | "politics" | "church" | "expansion" | "reform";
 }
 
+export interface FamousPerson {
+  name: string;
+  role: string;
+  yearBorn: number;
+  yearDied: number;
+  description: string;
+  type: "science" | "literature" | "art" | "religion";
+}
+
 export const rulers: Ruler[] = [
   { name: "Рюрик", title: "Князь Новгородский", yearStart: 862, yearEnd: 879, description: "Основатель династии Рюриковичей", era: "Древняя Русь" },
   { name: "Олег Вещий", title: "Великий Князь", yearStart: 879, yearEnd: 912, description: "Объединил Новгород и Киев", era: "Древняя Русь" },
@@ -116,6 +125,37 @@ export const events: HistoryEvent[] = [
   { year: 1990, title: "Нобелевская премия Горбачёва", description: "Михаил Горбачёв получил Нобелевскую премию мира за окончание холодной войны", side: "right", category: "culture" },
   { year: 2006, title: "Сеть «ВКонтакте»", description: "Павел Дуров основал крупнейшую социальную сеть России и Восточной Европы", side: "right", category: "culture" },
   { year: 2010, title: "Сколково", description: "Создан инновационный центр Сколково — российская Кремниевая долина", side: "right", category: "reform" },
+];
+
+export const famousPersons: FamousPerson[] = [
+  // Литература
+  { name: "Нестор Летописец", role: "Летописец", yearBorn: 1056, yearDied: 1114, description: "Автор «Повести временных лет» — главной летописи Древней Руси", type: "literature" },
+  { name: "Аввакум Петров", role: "Протопоп, писатель", yearBorn: 1620, yearDied: 1682, description: "Создал «Житие» — первую автобиографию в русской литературе", type: "religion" },
+  { name: "Михаил Ломоносов", role: "Учёный, поэт", yearBorn: 1711, yearDied: 1765, description: "Основоположник русской науки, реформатор языка, поэт", type: "science" },
+  { name: "Гавриил Державин", role: "Поэт", yearBorn: 1743, yearDied: 1816, description: "Крупнейший поэт XVIII века, предшественник Пушкина", type: "literature" },
+  { name: "Николай Карамзин", role: "Историк, писатель", yearBorn: 1766, yearDied: 1826, description: "Написал 12-томную «Историю государства Российского»", type: "literature" },
+  { name: "Александр Пушкин", role: "Поэт", yearBorn: 1799, yearDied: 1837, description: "Основоположник русской литературы, «солнце русской поэзии»", type: "literature" },
+  { name: "Николай Гоголь", role: "Писатель", yearBorn: 1809, yearDied: 1852, description: "Автор «Мёртвых душ» и «Ревизора», мастер сатиры", type: "literature" },
+  { name: "Иван Тургенев", role: "Писатель", yearBorn: 1818, yearDied: 1883, description: "«Отцы и дети», «Записки охотника» — певец русской природы", type: "literature" },
+  { name: "Фёдор Достоевский", role: "Писатель", yearBorn: 1821, yearDied: 1881, description: "«Преступление и наказание», «Братья Карамазовы» — глубины души", type: "literature" },
+  { name: "Лев Толстой", role: "Писатель", yearBorn: 1828, yearDied: 1910, description: "«Война и мир», «Анна Каренина» — величайший роман человечества", type: "literature" },
+  { name: "Антон Чехов", role: "Писатель", yearBorn: 1860, yearDied: 1904, description: "Мастер короткого рассказа, реформатор театра", type: "literature" },
+  { name: "Максим Горький", role: "Писатель", yearBorn: 1868, yearDied: 1936, description: "«На дне», «Мать» — символ пролетарской литературы", type: "literature" },
+  { name: "Михаил Булгаков", role: "Писатель", yearBorn: 1891, yearDied: 1940, description: "«Мастер и Маргарита» — мистический шедевр советской эпохи", type: "literature" },
+  { name: "Борис Пастернак", role: "Поэт, писатель", yearBorn: 1890, yearDied: 1960, description: "«Доктор Живаго», Нобелевская премия 1958 года", type: "literature" },
+  { name: "Александр Солженицын", role: "Писатель", yearBorn: 1918, yearDied: 2008, description: "«Архипелаг ГУЛАГ» — свидетельство эпохи репрессий", type: "literature" },
+  // Наука
+  { name: "Андрей Рублёв", role: "Иконописец", yearBorn: 1360, yearDied: 1430, description: "Создал «Троицу» — величайшую икону православного мира", type: "art" },
+  { name: "Иван Кулибин", role: "Механик-изобретатель", yearBorn: 1735, yearDied: 1818, description: "Создал часы-яйцо для Екатерины II, проекты мостов и протезов", type: "science" },
+  { name: "Николай Лобачевский", role: "Математик", yearBorn: 1792, yearDied: 1856, description: "Создал неевклидову геометрию — «Коперник геометрии»", type: "science" },
+  { name: "Дмитрий Менделеев", role: "Химик", yearBorn: 1834, yearDied: 1907, description: "Открыл периодический закон, создал таблицу элементов", type: "science" },
+  { name: "Илья Мечников", role: "Биолог", yearBorn: 1845, yearDied: 1916, description: "Открыл иммунитет, Нобелевская премия 1908 года", type: "science" },
+  { name: "Иван Павлов", role: "Физиолог", yearBorn: 1849, yearDied: 1936, description: "Открыл условный рефлекс, первый русский нобелевский лауреат (1904)", type: "science" },
+  { name: "Константин Циолковский", role: "Учёный-ракетчик", yearBorn: 1857, yearDied: 1935, description: "Отец космонавтики, разработал теорию ракетного движения", type: "science" },
+  { name: "Александр Попов", role: "Физик, изобретатель", yearBorn: 1859, yearDied: 1906, description: "Изобрёл радио в 1895 году", type: "science" },
+  { name: "Пётр Чайковский", role: "Композитор", yearBorn: 1840, yearDied: 1893, description: "«Лебединое озеро», «Щелкунчик» — гений мировой музыки", type: "art" },
+  { name: "Сергей Королёв", role: "Конструктор ракет", yearBorn: 1907, yearDied: 1966, description: "Создал первый спутник и ракету для полёта Гагарина", type: "science" },
+  { name: "Андрей Сахаров", role: "Физик", yearBorn: 1921, yearDied: 1989, description: "Создал водородную бомбу, затем стал правозащитником, Нобелевская премия мира", type: "science" },
 ];
 
 export const eras = [

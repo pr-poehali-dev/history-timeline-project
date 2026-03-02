@@ -1,37 +1,15 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { rulers, events, eras, type Ruler, type HistoryEvent } from "@/data/historyData";
+import {
+  rulers, events, eras, famousPersons,
+  type Ruler, type HistoryEvent, type FamousPerson
+} from "@/data/historyData";
 
-const YEAR_HEIGHT = 14;
+// ─── Константы ───────────────────────────────────────────────
 const START_YEAR = 2026;
 const END_YEAR = 862;
-const TOTAL_YEARS = START_YEAR - END_YEAR;
-const CARD_HEIGHT = 56; // минимальная высота карточки в px
-const CARD_WIDTH = 260; // базовая ширина карточки
-const DEPTH_STEP = 220; // шаг отступа для каждого уровня вложенности
-
-function yearToOffset(year: number): number {
-  return (START_YEAR - year) * YEAR_HEIGHT;
-}
-
-// Вычисляет depth (уровень вложенности) для каждого события на одной стороне
-// чтобы карточки не перекрывали друг друга — как дерево каталогов
-function computeDepths(sideEvents: (HistoryEvent & { index: number })[]): Map<number, number> {
-  const sorted = [...sideEvents].sort((a, b) => b.year - a.year); // сверху вниз
-  const depthMap = new Map<number, number>();
-  // columns[depth] = нижняя граница последней карточки на этом уровне
-  const columnBottom: number[] = [];
-
-  for (const ev of sorted) {
-    const top = yearToOffset(ev.year);
-    let depth = 0;
-    while (columnBottom[depth] !== undefined && top < columnBottom[depth] + 4) {
-      depth++;
-    }
-    columnBottom[depth] = top + CARD_HEIGHT;
-    depthMap.set(ev.index, depth);
-  }
-  return depthMap;
-}
+const MIN_ROW_PX = 28;       // минимальная высота строки (мало событий)
+const MAX_ROW_PX = 110;      // максимальная высота строки (много событий)
+const EVENTS_PER_YEAR = 1;   // сколько событий в году = "насыщенность"
 
 const categoryColors: Record<string, string> = {
   war: "#8B1A1A",
@@ -42,235 +20,145 @@ const categoryColors: Record<string, string> = {
   reform: "#1A4A4A",
 };
 
-const categoryLabels: Record<string, string> = {
-  war: "Война",
-  culture: "Культура",
-  politics: "Политика",
-  church: "Церковь",
-  expansion: "Расширение",
-  reform: "Реформа",
+const personColors: Record<string, string> = {
+  science: "#1A4A4A",
+  literature: "#4A2A00",
+  art: "#3A1A4A",
+  religion: "#2A2A60",
 };
 
-function EventCard({ event, depth }: { event: HistoryEvent; depth: number }) {
+const personIcons: Record<string, string> = {
+  science: "⚗",
+  literature: "✒",
+  art: "🎨",
+  religion: "✝",
+};
+
+// ─── Динамическая шкала ──────────────────────────────────────
+// Считаем: для каждого года — сколько событий "активны" в этот год
+// (событие активно в год его наступления)
+// Высота строки пропорциональна насыщенности
+
+function buildYearLayout(evts: HistoryEvent[]): Map<number, { height: number; top: number }> {
+  // Считаем количество событий на год
+  const countByYear = new Map<number, number>();
+  for (const e of evts) {
+    countByYear.set(e.year, (countByYear.get(e.year) || 0) + 1);
+  }
+
+  // Также учитываем правителей и людей как "насыщенность"
+  const maxCount = Math.max(1, ...countByYear.values());
+
+  const layout = new Map<number, { height: number; top: number }>();
+  let cursor = 0;
+
+  for (let y = START_YEAR; y >= END_YEAR; y--) {
+    const count = countByYear.get(y) || 0;
+    // Нелинейное масштабирование: даже без событий — минимальная высота
+    const ratio = count === 0 ? 0 : Math.sqrt(count / maxCount);
+    const height = count === 0
+      ? MIN_ROW_PX
+      : MIN_ROW_PX + Math.round((MAX_ROW_PX - MIN_ROW_PX) * ratio);
+
+    layout.set(y, { height, top: cursor });
+    cursor += height;
+  }
+
+  return layout;
+}
+
+function yearMidpoint(layout: Map<number, { height: number; top: number }>, year: number): number {
+  const row = layout.get(year);
+  if (!row) return 0;
+  return row.top + row.height / 2;
+}
+
+// ─── Компоненты ──────────────────────────────────────────────
+
+function EventRow({ event, layout }: { event: HistoryEvent; layout: Map<number, { height: number; top: number }> }) {
   const [open, setOpen] = useState(false);
-  const top = yearToOffset(event.year);
-  const isLeft = event.side === "left";
+  const row = layout.get(event.year);
+  if (!row) return null;
   const color = categoryColors[event.category];
-
-  // Чем глубже уровень — тем дальше от оси
-  const offsetFromAxis = 24 + depth * DEPTH_STEP;
-  const cardWidth = CARD_WIDTH;
-
-  // Горизонтальный коннектор от оси к карточке
-  const connectorWidth = offsetFromAxis - 12;
 
   return (
     <div
       className="absolute"
-      style={{
-        top: `${top}px`,
-        left: isLeft ? `calc(50% - ${offsetFromAxis + cardWidth}px)` : `calc(50% + ${offsetFromAxis}px)`,
-        width: `${cardWidth}px`,
-        zIndex: 5,
-      }}
+      style={{ top: `${row.top}px`, left: 0, right: "50%", paddingRight: "32px" }}
     >
-      {/* Горизонтальная линия-коннектор к оси */}
-      {depth > 0 && (
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full text-left"
+        style={{ paddingLeft: "16px" }}
+      >
         <div
-          className="absolute"
+          className="parchment-card transition-all duration-200 hover:shadow-lg"
           style={{
-            top: "14px",
-            [isLeft ? "right" : "left"]: `${-connectorWidth}px`,
-            width: `${connectorWidth}px`,
-            height: "1px",
-            background: `${color}60`,
-            pointerEvents: "none",
+            borderLeft: `3px solid ${color}`,
+            borderTop: "1px solid rgba(139,90,43,0.2)",
+            borderBottom: "1px solid rgba(139,90,43,0.2)",
+            borderRight: "1px solid rgba(139,90,43,0.15)",
           }}
-        />
-      )}
-      <div className={`flex ${isLeft ? "flex-row-reverse" : "flex-row"} items-start gap-1.5`}>
-        <div
-          className="flex-shrink-0 w-2 h-2 rounded-full mt-3"
-          style={{
-            background: color,
-            boxShadow: `0 0 5px ${color}80`,
-            minWidth: "8px",
-          }}
-        />
-        <button onClick={() => setOpen(!open)} className="text-left w-full cursor-pointer">
-          <div
-            className="parchment-card transition-all duration-200 hover:shadow-xl"
-            style={{
-              borderLeft: isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.2)`,
-              borderRight: !isLeft ? `3px solid ${color}` : `1px solid rgba(139,90,43,0.2)`,
-              borderTop: `1px solid rgba(139,90,43,0.2)`,
-              borderBottom: `1px solid rgba(139,90,43,0.2)`,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "Oswald, sans-serif",
-                color: "#8B4513",
-                fontSize: "13px",
-                display: "block",
-                lineHeight: 1.2,
-              }}
-            >
-              {event.year} г.
-            </span>
-            <p
-              style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "22px",
-                color: "#2C1A0E",
-                fontWeight: 700,
-                lineHeight: 1.2,
-                margin: "2px 0",
-              }}
-            >
-              {event.title}
+        >
+          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: "#8B4513", display: "block", lineHeight: 1 }}>
+            {event.year} г.
+          </span>
+          <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "17px", fontWeight: 700, color: "#2C1A0E", lineHeight: 1.2, margin: "2px 0 0" }}>
+            {event.title}
+          </p>
+          {open && (
+            <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "13px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.4, marginTop: "4px" }}>
+              {event.description}
             </p>
-            {open && (
-              <p
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "13px",
-                  color: "#4A3320",
-                  fontStyle: "italic",
-                  lineHeight: 1.45,
-                  marginTop: "4px",
-                  opacity: 0.9,
-                }}
-              >
-                {event.description}
-              </p>
-            )}
-          </div>
-        </button>
-      </div>
+          )}
+        </div>
+      </button>
     </div>
   );
 }
 
-function RulerBadge({ ruler }: { ruler: Ruler }) {
-  const top = yearToOffset(ruler.yearStart);
-  const height = (ruler.yearStart - ruler.yearEnd) * YEAR_HEIGHT;
+function RulerBar({ ruler, layout }: { ruler: Ruler; layout: Map<number, { height: number; top: number }> }) {
   const [hover, setHover] = useState(false);
+  const topRow = layout.get(Math.min(ruler.yearStart, START_YEAR));
+  const botRow = layout.get(Math.max(ruler.yearEnd, END_YEAR));
+  if (!topRow || !botRow) return null;
 
-  const eraColor =
-    eras.find((e) => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color ||
-    "#8B4513";
+  const top = topRow.top;
+  const bottom = botRow.top + botRow.height;
+  const height = bottom - top;
+
+  const eraColor = eras.find(e => ruler.yearStart >= e.yearStart && ruler.yearStart < e.yearEnd)?.color || "#8B4513";
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2"
-      style={{
-        top: `${top}px`,
-        height: `${Math.max(height, 28)}px`,
-        zIndex: 10,
-        width: "116px",
-      }}
+      className="absolute"
+      style={{ top: `${top}px`, height: `${height}px`, left: "calc(50% + 8px)", width: "120px", zIndex: 10 }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="relative w-full flex flex-col items-center" style={{ height: "100%" }}>
-        <div
-          className="ruler-badge transition-all duration-200"
-          style={{
-            background: hover ? eraColor : "rgba(245,230,200,0.97)",
-            border: `1px solid ${eraColor}`,
-            color: hover ? "#F5E6C8" : "#2C1A0E",
-            boxShadow: hover ? `0 4px 20px ${eraColor}60` : "0 1px 6px rgba(0,0,0,0.12)",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "Cormorant Garamond, serif",
-              fontSize: "22px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "108px",
-              display: "block",
-              textAlign: "center",
-            }}
-          >
-            {ruler.name}
+      <div
+        className="relative h-full flex flex-col justify-center px-2 transition-all duration-200 cursor-default"
+        style={{
+          background: hover ? eraColor : `${eraColor}18`,
+          borderLeft: `2px solid ${eraColor}`,
+          borderRadius: "0 2px 2px 0",
+        }}
+      >
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "12px", fontWeight: 700, color: hover ? "#F5E6C8" : "#2C1A0E", lineHeight: 1.2, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          {ruler.name}
+        </span>
+        {height > 40 && (
+          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "9px", color: hover ? "#F5E6C8" : eraColor, opacity: 0.8, letterSpacing: "0.04em" }}>
+            {ruler.yearStart}–{ruler.yearEnd}
           </span>
-          {height > 50 && (
-            <span
-              style={{
-                fontFamily: "Oswald, sans-serif",
-                fontSize: "16px",
-                opacity: 0.65,
-                display: "block",
-                textAlign: "center",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {ruler.yearStart}–{ruler.yearEnd}
-            </span>
-          )}
-        </div>
+        )}
 
         {hover && (
-          <div
-            className="absolute left-full ml-3 top-0"
-            style={{ zIndex: 50, minWidth: "220px" }}
-          >
-            <div
-              className="parchment-tooltip"
-              style={{ borderLeft: `3px solid ${eraColor}` }}
-            >
-              <p
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  color: "#2C1A0E",
-                  lineHeight: 1.2,
-                }}
-              >
-                {ruler.name}
-              </p>
-              <p
-                style={{
-                  fontFamily: "Oswald, sans-serif",
-                  fontSize: "9px",
-                  color: eraColor,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  marginBottom: "6px",
-                  marginTop: "2px",
-                }}
-              >
-                {ruler.title} · {ruler.yearStart}–{ruler.yearEnd}
-              </p>
-              <p
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "13px",
-                  fontStyle: "italic",
-                  color: "#4A3320",
-                  lineHeight: 1.5,
-                }}
-              >
-                {ruler.description}
-              </p>
-              <p
-                style={{
-                  fontFamily: "Oswald, sans-serif",
-                  fontSize: "9px",
-                  color: eraColor,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  marginTop: "6px",
-                  opacity: 0.7,
-                }}
-              >
-                {ruler.era}
-              </p>
+          <div className="absolute left-full ml-2 top-0 animate-fade-in" style={{ zIndex: 50, minWidth: "200px" }}>
+            <div className="parchment-tooltip" style={{ borderLeft: `3px solid ${eraColor}` }}>
+              <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "16px", fontWeight: 700, color: "#2C1A0E" }}>{ruler.name}</p>
+              <p style={{ fontFamily: "Oswald, sans-serif", fontSize: "9px", color: eraColor, textTransform: "uppercase", letterSpacing: "0.08em", margin: "2px 0 6px" }}>{ruler.title} · {ruler.yearStart}–{ruler.yearEnd}</p>
+              <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "13px", fontStyle: "italic", color: "#4A3320", lineHeight: 1.5 }}>{ruler.description}</p>
             </div>
           </div>
         )}
@@ -279,33 +167,139 @@ function RulerBadge({ ruler }: { ruler: Ruler }) {
   );
 }
 
-const ALL_YEARS = Array.from(
-  { length: TOTAL_YEARS + 1 },
-  (_, i) => START_YEAR - i
-).filter((y) => y >= END_YEAR);
+function PersonBar({ person, layout, offsetX }: { person: FamousPerson; layout: Map<number, { height: number; top: number }>; offsetX: number }) {
+  const [hover, setHover] = useState(false);
+  const born = Math.max(person.yearBorn, END_YEAR);
+  const died = Math.min(person.yearDied, START_YEAR);
+  const topRow = layout.get(Math.min(born, START_YEAR));
+  const botRow = layout.get(Math.max(died, END_YEAR));
+  if (!topRow || !botRow) return null;
+
+  const top = topRow.top;
+  const bottom = botRow.top + botRow.height;
+  const height = bottom - top;
+  if (height < 8) return null;
+
+  const color = personColors[person.type];
+  const icon = personIcons[person.type];
+
+  return (
+    <div
+      className="absolute"
+      style={{ top: `${top}px`, height: `${height}px`, left: `calc(50% + ${offsetX}px)`, width: "110px", zIndex: 9 }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div
+        className="relative h-full flex flex-col justify-center px-2 transition-all duration-200 cursor-default"
+        style={{
+          background: hover ? color : `${color}15`,
+          borderLeft: `2px solid ${color}60`,
+          borderRadius: "0 2px 2px 0",
+        }}
+      >
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "11px", fontWeight: 700, color: hover ? "#F5E6C8" : "#2C1A0E", lineHeight: 1.2 }}>
+          {icon} {person.name}
+        </span>
+        {height > 36 && (
+          <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "8px", color: hover ? "#F5E6C8" : color, opacity: 0.8 }}>
+            {person.yearBorn}–{person.yearDied}
+          </span>
+        )}
+
+        {hover && (
+          <div className="absolute left-full ml-2 top-0 animate-fade-in" style={{ zIndex: 50, minWidth: "190px" }}>
+            <div className="parchment-tooltip" style={{ borderLeft: `3px solid ${color}` }}>
+              <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "15px", fontWeight: 700, color: "#2C1A0E" }}>{person.name}</p>
+              <p style={{ fontFamily: "Oswald, sans-serif", fontSize: "9px", color, textTransform: "uppercase", letterSpacing: "0.08em", margin: "2px 0 6px" }}>{person.role} · {person.yearBorn}–{person.yearDied}</p>
+              <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "13px", fontStyle: "italic", color: "#4A3320", lineHeight: 1.5 }}>{person.description}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Расставляем персон по колонкам чтобы не перекрывались
+function assignPersonColumns(persons: FamousPerson[]): { person: FamousPerson; col: number }[] {
+  const sorted = [...persons].sort((a, b) => b.yearBorn - a.yearBorn);
+  const colEnd: number[] = []; // конец последнего элемента в каждой колонке (в годах, убывание)
+  const result: { person: FamousPerson; col: number }[] = [];
+
+  for (const p of sorted) {
+    let col = 0;
+    while (colEnd[col] !== undefined && p.yearBorn > colEnd[col] - 5) {
+      col++;
+    }
+    colEnd[col] = p.yearDied;
+    result.push({ person: p, col });
+  }
+  return result;
+}
+
+// Линейка на оси — засечки с переменной длиной
+function RulerTicks({ layout }: { layout: Map<number, { height: number; top: number }> }) {
+  const ticks: JSX.Element[] = [];
+
+  for (let y = START_YEAR; y >= END_YEAR; y--) {
+    const row = layout.get(y);
+    if (!row) continue;
+    const midY = row.top + row.height / 2;
+
+    const isCentury = y % 100 === 0;
+    const isDecade = y % 10 === 0 && !isCentury;
+    const isFive = y % 5 === 0 && !isDecade && !isCentury;
+
+    const tickLen = isCentury ? 28 : isDecade ? 16 : isFive ? 9 : 4;
+    const opacity = isCentury ? 0.9 : isDecade ? 0.6 : isFive ? 0.35 : 0.18;
+    const thickness = isCentury ? 2 : 1;
+
+    ticks.push(
+      <div key={y} className="absolute" style={{ top: `${midY}px`, left: "50%", transform: "translateX(-50%)", width: 0, pointerEvents: "none", zIndex: 4 }}>
+        <div style={{ position: "absolute", right: "2px", top: 0, width: `${tickLen}px`, height: `${thickness}px`, background: `rgba(139,90,43,${opacity})`, transform: "translateY(-50%)" }} />
+        <div style={{ position: "absolute", left: "2px", top: 0, width: `${tickLen}px`, height: `${thickness}px`, background: `rgba(139,90,43,${opacity})`, transform: "translateY(-50%)" }} />
+        {(isCentury || isDecade) && (
+          <span style={{
+            position: "absolute",
+            right: `${tickLen + 5}px`,
+            top: 0,
+            transform: "translateY(-50%)",
+            fontFamily: "Oswald, sans-serif",
+            fontSize: isCentury ? "14px" : "10px",
+            color: isCentury ? "rgba(139,90,43,0.85)" : "rgba(139,90,43,0.5)",
+            fontWeight: isCentury ? 500 : 300,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+          }}>
+            {y}
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  return <>{ticks}</>;
+}
+
+// ─── Главная страница ─────────────────────────────────────────
 
 export default function Index() {
-  const totalHeight = TOTAL_YEARS * YEAR_HEIGHT + 200;
   const [activeEra, setActiveEra] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  }, []);
+  const layout = useMemo(() => buildYearLayout(events), []);
 
-  // Вычисляем глубину (depth) для каждого события отдельно по левой и правой стороне
-  const depthMap = useMemo(() => {
-    const leftEvents = events
-      .filter((e) => e.side === "left")
-      .map((e, i) => ({ ...e, index: events.indexOf(e) }));
-    const rightEvents = events
-      .filter((e) => e.side === "right")
-      .map((e, i) => ({ ...e, index: events.indexOf(e) }));
-    const leftDepths = computeDepths(leftEvents);
-    const rightDepths = computeDepths(rightEvents);
-    return new Map([...leftDepths, ...rightDepths]);
+  const totalHeight = useMemo(() => {
+    let max = 0;
+    layout.forEach(row => { if (row.top + row.height > max) max = row.top + row.height; });
+    return max + 100;
+  }, [layout]);
+
+  const personColumns = useMemo(() => assignPersonColumns(famousPersons), []);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, []);
 
   return (
@@ -329,8 +323,8 @@ export default function Index() {
                 const newActive = activeEra === era.name ? null : era.name;
                 setActiveEra(newActive);
                 if (newActive && scrollRef.current) {
-                  const offset = yearToOffset(era.yearEnd) - 100;
-                  scrollRef.current.scrollTop = Math.max(0, offset);
+                  const row = layout.get(era.yearEnd);
+                  if (row) scrollRef.current.scrollTop = Math.max(0, row.top - 80);
                 }
               }}
             >
@@ -338,109 +332,38 @@ export default function Index() {
             </button>
           ))}
         </div>
-        <div className="legend-categories">
-          {Object.entries(categoryLabels).map(([key, label]) => (
-            <span key={key} className="category-dot">
-              <span
-                className="inline-block w-2 h-2 rounded-full mr-1"
-                style={{ background: categoryColors[key], verticalAlign: "middle" }}
-              />
-              {label}
-            </span>
-          ))}
+        <div className="legend-persons">
+          <span style={{ color: personColors.literature }}>✒ Литература</span>
+          <span style={{ color: personColors.science }}>⚗ Наука</span>
+          <span style={{ color: personColors.art }}>🎨 Искусство</span>
+          <span style={{ color: personColors.religion }}>✝ Религия</span>
         </div>
       </header>
 
       <div className="timeline-scroll" ref={scrollRef}>
         <div className="timeline-container" style={{ height: `${totalHeight}px` }}>
+
+          {/* Ось */}
           <div className="timeline-axis" style={{ height: `${totalHeight}px` }} />
 
-          {ALL_YEARS.map((year) => {
-            const isCentury = year % 100 === 0;
-            const isDecade = year % 10 === 0 && !isCentury;
-            const isFive = year % 5 === 0 && !isDecade && !isCentury;
-            const top = yearToOffset(year);
-
-            // Длина засечки: век — длинная с двух сторон, десяток — средняя, 5 лет — короткая, год — минимальная
-            const tickLen = isCentury ? 28 : isDecade ? 16 : isFive ? 9 : 4;
-            const opacity = isCentury ? 0.85 : isDecade ? 0.55 : isFive ? 0.35 : 0.18;
-            const thickness = isCentury ? 1.5 : 1;
-
-            return (
-              <div key={`tick-${year}`} className="absolute" style={{ top: `${top}px`, left: "50%", transform: "translateX(-50%)", width: "0", zIndex: 2, pointerEvents: "none" }}>
-                {/* Левая засечка */}
-                <div style={{
-                  position: "absolute",
-                  right: "2px",
-                  top: "0",
-                  width: `${tickLen}px`,
-                  height: `${thickness}px`,
-                  background: `rgba(139,90,43,${opacity})`,
-                  transform: "translateY(-50%)",
-                }} />
-                {/* Правая засечка */}
-                <div style={{
-                  position: "absolute",
-                  left: "2px",
-                  top: "0",
-                  width: `${tickLen}px`,
-                  height: `${thickness}px`,
-                  background: `rgba(139,90,43,${opacity})`,
-                  transform: "translateY(-50%)",
-                }} />
-                {/* Подпись года — только для веков и десятков */}
-                {(isCentury || isDecade) && (
-                  <>
-                    <span style={{
-                      position: "absolute",
-                      right: `${tickLen + 6}px`,
-                      top: "0",
-                      transform: "translateY(-50%)",
-                      fontFamily: "Oswald, sans-serif",
-                      fontSize: isCentury ? "18px" : "11px",
-                      color: isCentury ? "rgba(139,90,43,0.85)" : "rgba(139,90,43,0.5)",
-                      fontWeight: isCentury ? 500 : 300,
-                      letterSpacing: "0.04em",
-                      whiteSpace: "nowrap",
-                    }}>
-                      {year}
-                    </span>
-                    <span style={{
-                      position: "absolute",
-                      left: `${tickLen + 6}px`,
-                      top: "0",
-                      transform: "translateY(-50%)",
-                      fontFamily: "Oswald, sans-serif",
-                      fontSize: isCentury ? "18px" : "11px",
-                      color: isCentury ? "rgba(139,90,43,0.85)" : "rgba(139,90,43,0.5)",
-                      fontWeight: isCentury ? 500 : 300,
-                      letterSpacing: "0.04em",
-                      whiteSpace: "nowrap",
-                    }}>
-                      {year}
-                    </span>
-                  </>
-                )}
-              </div>
-            );
-          })}
-
+          {/* Фоны эпох */}
           {eras.map((era) => {
-            const eraTop = yearToOffset(era.yearEnd);
-            const eraHeight = (era.yearEnd - era.yearStart) * YEAR_HEIGHT;
+            const topRow = layout.get(Math.min(era.yearEnd, START_YEAR));
+            const botRow = layout.get(Math.max(era.yearStart, END_YEAR));
+            if (!topRow || !botRow) return null;
+            const top = topRow.top;
+            const height = (botRow.top + botRow.height) - top;
             return (
               <div
-                key={`era-bg-${era.name}`}
+                key={era.name}
                 className="absolute"
                 style={{
-                  top: `${eraTop}px`,
-                  height: `${eraHeight}px`,
-                  left: 0,
-                  right: 0,
+                  top: `${top}px`, height: `${height}px`,
+                  left: 0, right: 0,
                   background: `${era.color}06`,
                   borderTop: `1px solid ${era.color}20`,
                   zIndex: 0,
-                  opacity: activeEra === null || activeEra === era.name ? 1 : 0.3,
+                  opacity: activeEra === null || activeEra === era.name ? 1 : 0.25,
                   transition: "opacity 0.3s",
                   pointerEvents: "none",
                 }}
@@ -448,12 +371,27 @@ export default function Index() {
             );
           })}
 
-          {rulers.map((ruler) => (
-            <RulerBadge key={`${ruler.name}-${ruler.yearStart}`} ruler={ruler} />
+          {/* Линейка */}
+          <RulerTicks layout={layout} />
+
+          {/* События слева */}
+          {events.map((event, i) => (
+            <EventRow key={i} event={event} layout={layout} />
           ))}
 
-          {events.map((event, i) => (
-            <EventCard key={`${event.title}-${event.year}`} event={event} depth={depthMap.get(i) ?? 0} />
+          {/* Правители справа */}
+          {rulers.map((ruler) => (
+            <RulerBar key={ruler.name + ruler.yearStart} ruler={ruler} layout={layout} />
+          ))}
+
+          {/* Известные люди справа в колонках */}
+          {personColumns.map(({ person, col }) => (
+            <PersonBar
+              key={person.name}
+              person={person}
+              layout={layout}
+              offsetX={136 + col * 118}
+            />
           ))}
         </div>
       </div>
@@ -461,7 +399,7 @@ export default function Index() {
       <footer className="history-footer">
         <span>⚜</span>
         <span style={{ fontFamily: "Cormorant Garamond, serif", fontStyle: "italic", fontSize: "13px" }}>
-          Наведите на правителя, чтобы узнать подробности · Нажмите на событие, чтобы раскрыть описание
+          Слева — события · По центру — линейка лет · Справа — правители и великие люди
         </span>
         <span>⚜</span>
       </footer>

@@ -146,6 +146,17 @@
   align-items: center;
 }
 
+.legend-persons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+  font-family: "Oswald", sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
 /* === SCROLLABLE TIMELINE === */
 
 .timeline-scroll {
