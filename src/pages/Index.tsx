@@ -49,11 +49,14 @@ function PersonCard({ person }: { person: FamousPerson }) {
         textAlign: "center",
         height: "100%",
       }}>
-        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2 }}>
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "16px", fontStyle: "italic", color: `${color}90`, lineHeight: 1.2 }}>
+          {person.role}
+        </span>
+        <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "22px", fontWeight: 700, color, lineHeight: 1.2, marginTop: "2px" }}>
           {person.name}
         </span>
         <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "11px", color: `${color}70`, marginTop: "2px" }}>
-          {person.yearBorn} · {person.role}
+          {person.yearBorn}
         </span>
         {open && (
           <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "20px", color: "#4A3320", fontStyle: "italic", lineHeight: 1.5, marginTop: "6px" }}>
